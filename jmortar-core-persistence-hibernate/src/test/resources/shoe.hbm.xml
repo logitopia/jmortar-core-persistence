@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+  <class dynamic-insert="false" 
+         dynamic-update="false" 
+         mutable="true" 
+         name="com.logitopia.jmortar.core.persistence.dao.impl.mock.Shoe"
+         table="shoe"
+         optimistic-lock="version" 
+         polymorphism="implicit" 
+         select-before-update="false">
+    <id name="Shoeid" type="long">
+        <generator class="identity" />
+    </id>
+    <version
+        name="version"
+        type="long"
+        access="field"
+        unsaved-value="undefined"
+      insert="true"/>
+    <property name="make" type="java.lang.String">
+      <column name="make"/>
+    </property>
+    <property name="model" type="java.lang.String">
+      <column name="model"/>
+    </property>
+    <property name="size" type="int">
+      <column name="size"/>
+    </property>
+    <property name="colour" type="java.lang.String">
+      <column name="colour"/>
+    </property>
+    <property name="material" type="java.lang.String">
+      <column name="material"/>
+    </property>
+  </class>
+</hibernate-mapping>

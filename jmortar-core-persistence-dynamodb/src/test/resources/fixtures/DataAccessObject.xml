@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-4.0.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <context:component-scan
+            base-package="com.logitopia.jmortar.core.persistence.dao.builder, com.logitopia.jmortar.core.object.annotation"/>
+
+    <!--
+      Query Factory
+    -->
+    <bean id="defaultAttributeValueHandler"
+          class="com.logitopia.jmortar.core.persistence.dao.factory.attributevalue.DefaultDynamoDBAttributeValueHandler"/>
+    <bean id="numericAttributeValueHandler"
+          class="com.logitopia.jmortar.core.persistence.dao.factory.attributevalue.NumberDynamoDBAttributeValueHandler">
+        <constructor-arg ref="defaultAttributeValueHandler"></constructor-arg>
+    </bean>
+
+    <bean id="queryFactory"
+          class="com.logitopia.jmortar.core.persistence.dao.factory.DynamoDBQueryFactory"
+          scope="prototype">
+        <constructor-arg
+                type="com.logitopia.jmortar.core.persistence.dao.factory.attributevalue.DynamoDBAttributeValueHandler"
+                ref="numericAttributeValueHandler">
+        </constructor-arg>
+    </bean>
+
+    <!--
+     Builder Configuration
+    -->
+    <bean id="dynamoDBBuilderConfig"
+          class="com.logitopia.jmortar.core.persistence.builder.model.DomainPersistenceBuilderConfig">
+        <constructor-arg ref="dynamoDBResourceFactory"/>
+        <constructor-arg ref="queryFactory"/>
+        <constructor-arg ref="dynamoDBDACBuilder"/>
+    </bean>
+
+    <util:map id="builderConfigMap" key-type="java.lang.Class">
+        <entry key="com.logitopia.jmortar.core.persistence.dao.annotation.DynamoDBPersistent"
+               value-ref="dynamoDBBuilderConfig">
+        </entry>
+    </util:map>
+
+    <!--
+     Builder Setup
+    -->
+    <bean class="com.logitopia.jmortar.core.persistence.builder.PersistenceConfigurationBuilder">
+        <constructor-arg ref="springAnnotationSearcher"/>
+        <constructor-arg ref="builderConfigMap"/>
+        <constructor-arg value="1"/>
+    </bean>
+
+    <!-- AWS Setup -->
+    <util:constant id="awsRegion"
+                   static-field="com.amazonaws.regions.Regions.EU_WEST_1"/>
+
+    <bean id="awsCredentials"
+          class="com.amazonaws.auth.BasicAWSCredentials">
+        <constructor-arg value="AKIAIPY36AFOQX3FP4LA"/>
+        <constructor-arg value="QAEDgc0+zMw6C9ijSZlzI6ONXeG8jqrtcm1F5QIv"/>
+    </bean>
+
+    <bean id="credProvider" class="com.amazonaws.auth.AWSStaticCredentialsProvider">
+        <constructor-arg ref="awsCredentials"/>
+    </bean>
+
+    <bean id="resource" class="com.logitopia.jmortar.core.persistence.dao.model.DynamoDBResource">
+        <constructor-arg ref="credProvider"/>
+        <constructor-arg ref="awsRegion"/>
+        <constructor-arg value="1"/>
+    </bean>
+</beans>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+    <!-- Fictional Persistence Setup -->
+    <bean id="testCredProvider" class="java.lang.String">
+        <constructor-arg value="TestProvider"/>
+    </bean>
+
+    <!-- Builder Setup ================================================ -->
+    <!-- Annotation Searcher -->
+    <bean id="annotationSearcher" class="com.logitopia.jmortar.core.object.annotation.SpringAnnotationSearcher"/>
+
+    <!-- Setup DAC Builder -->
+    <bean id="inventedDACBuilder" class="com.logitopia.jmortar.core.persistence.fixtures.builder.InventedDACBuilder"/>
+
+    <!-- Setup Resource Factory -->
+    <bean id="inventedResource" class="com.logitopia.jmortar.core.persistence.fixtures.builder.dao.InventedResource"/>
+    <bean id="inventedResourceFactory"
+          class="com.logitopia.jmortar.core.persistence.fixtures.builder.InventedResourceFactory">
+        <constructor-arg ref="inventedResource"/>
+    </bean>
+
+    <bean id="inventedQueryFactory" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="com.logitopia.jmortar.core.persistence.dao.factory.QueryFactory"/>
+    </bean>
+
+    <bean id="builderConfig" class="com.logitopia.jmortar.core.persistence.builder.model.DomainPersistenceBuilderConfig">
+        <constructor-arg ref="inventedResourceFactory"/>
+        <constructor-arg ref="inventedQueryFactory"/>
+        <constructor-arg ref="inventedDACBuilder"/>
+    </bean>
+
+    <util:map id="builderConfigMap" key-type="java.lang.Class">
+        <entry key="com.logitopia.jmortar.core.persistence.fixtures.builder.annotation.InventedPersistent"
+               value-ref="builderConfig">
+        </entry>
+    </util:map>
+
+    <bean class="com.logitopia.jmortar.core.persistence.builder.PersistenceConfigurationBuilder">
+        <constructor-arg ref="annotationSearcher"/>
+        <constructor-arg ref="builderConfigMap"/>
+        <constructor-arg value="1"/>
+    </bean>
+</beans>

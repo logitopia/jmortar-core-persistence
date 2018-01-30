@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                           http://www.springframework.org/schema/util 
+                           http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+  <!-- Import the test DAO -->
+  <import resource="fixtures/DataAccessObject.xml"/>
+  
+  <util:list id="fixtures">
+    <ref bean="bobMarleyOne"/>
+    <ref bean="bobMarleyTwo"/>
+    <ref bean="bobMarleyThree"/>
+    <ref bean="bobMarleyFour"/>
+    <ref bean="otherOne"/>
+    <ref bean="otherTwo"/>
+    <ref bean="otherThree"/>
+  </util:list>
+  
+  <!-- Test Fixtures for integration testing -->
+  <util:map id="bobMarleyOne">
+    <entry key="artist" value="Bob Marley" />
+    <entry key="songTitle" value="Jamming" />
+    <entry key="albumTitle" value="Exodus" />
+    <entry key="genre" value="Regae" />
+  </util:map>
+  
+  <util:map id="bobMarleyTwo">
+    <entry key="artist" value="Bob Marley" />
+    <entry key="songTitle" value="Three Little Birds" />
+    <entry key="albumTitle" value="Exodus" />
+    <entry key="genre" value="Regae" />
+  </util:map>
+  
+  <util:map id="bobMarleyThree">
+    <entry key="artist" value="Bob Marley" />
+    <entry key="songTitle" value="Exodus" />
+    <entry key="albumTitle" value="Exodus" />
+    <entry key="genre" value="Regae" />
+  </util:map>
+  
+  <util:map id="bobMarleyFour">
+    <entry key="artist" value="Bob Marley" />
+    <entry key="songTitle" value="Waiting In Vain" />
+    <entry key="albumTitle" value="Exodus" />
+    <entry key="genre" value="Regae" />
+  </util:map>
+  
+  <util:map id="otherOne">
+    <entry key="artist" value="Wierd Al Yankovic" />
+    <entry key="songTitle" value="Amish Paradise" />
+    <entry key="albumTitle" value="Something Else" />
+    <entry key="genre" value="Comedy" />
+  </util:map>
+  
+  <util:map id="otherTwo">
+    <entry key="artist" value="Wierd Al Yankovic" />
+    <entry key="songTitle" value="White N Nerdy" />
+    <entry key="albumTitle" value="Something Else" />
+    <entry key="genre" value="Comedy" />
+  </util:map>
+  
+  <util:map id="otherThree">
+    <entry key="artist" value="Wierd Al Yankovic" />
+    <entry key="songTitle" value="Im Fat" />
+    <entry key="albumTitle" value="Something Else" />
+    <entry key="genre" value="Comedy" />
+  </util:map>
+</beans>

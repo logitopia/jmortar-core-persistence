@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+  
+  <util:map id="shoeData">
+    <entry key="make" value="Nike" />
+    <entry key="model" value="Air Ladies" />
+    <entry key="size" value="5" value-type="int" />
+    <entry key="colour" value="blue" />
+    <entry key="material" value="plastic" />
+  </util:map>
+  
+  <util:map id="manualIdData">
+    <entry key="id" value="A" />
+    <entry key="name" value="test" />
+  </util:map>
+  
+  <!-- Get All Testing-->
+  <util:map id="GAShoe1">
+    <entry key="make" value="Nike" />
+    <entry key="model" value="Air" />
+    <entry key="size" value="9" value-type="int" />
+    <entry key="colour" value="red" />
+    <entry key="material" value="plastic" />
+  </util:map>
+  
+  <util:map id="GAShoe2">
+    <entry key="make" value="Dr Martins" />
+    <entry key="model" value="Mens Boot" />
+    <entry key="size" value="10" value-type="int" />
+    <entry key="colour" value="black" />
+    <entry key="material" value="leather" />
+  </util:map>
+  
+  <util:map id="GAShoe3">
+    <entry key="make" value="Manolo Blahnik" />
+    <entry key="model" value="Martagamod Leather Buckle Sandals" />
+    <entry key="size" value="6" value-type="int" />
+    <entry key="colour" value="white" />
+    <entry key="material" value="leather" />
+  </util:map>
+  
+  <import resource="fixtures/DataAccessObject.xml"/>
+  
+  <!-- Hibernate session factory -->
+  <bean id="sessionFactory" 
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+ 
+    <property name="dataSource">
+      <ref bean="dataSource"/>
+    </property>
+ 
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+        <prop key="hibernate.show_sql">true</prop>
+        <prop key="hibernate.hbm2ddl.auto">create</prop>
+      </props>
+    </property>
+ 
+    <property name="mappingResources">
+      <list>
+        <value>shoe.hbm.xml</value>
+        <value>manualIdModel.hbm.xml</value>
+      </list>
+    </property>
+ 
+  </bean>
+  
+  <!-- Hibernate Data Source -->
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+    <property name="url" value="jdbc:mysql://192.168.0.50:3306/dev" />
+    <property name="username" value="dbadmin" />
+    <property name="password" value="dbadm1n" />
+  </bean>
+</beans>

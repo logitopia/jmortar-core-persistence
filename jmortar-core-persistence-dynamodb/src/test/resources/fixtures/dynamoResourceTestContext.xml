@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+                           http://www.springframework.org/schema/util
+                           http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+
+    <!-- AWS Setup -->
+    <util:constant id="awsRegion"
+                   static-field="com.amazonaws.regions.Regions.EU_WEST_1"/>
+
+    <util:constant id="testRegions"
+                   static-field="com.amazonaws.regions.Regions.EU_CENTRAL_1"/>
+
+    <bean id="awsCredentials"
+          class="com.amazonaws.auth.BasicAWSCredentials">
+        <constructor-arg value="AKIAIPY36AFOQX3FP4LA"/>
+        <constructor-arg value="QAEDgc0+zMw6C9ijSZlzI6ONXeG8jqrtcm1F5QIv"/>
+    </bean>
+
+    <bean id="credProvider" class="com.amazonaws.auth.AWSStaticCredentialsProvider">
+        <constructor-arg ref="awsCredentials"/>
+    </bean>
+
+    <bean id="testCredentialsProvider" class="com.amazonaws.auth.AWSStaticCredentialsProvider">
+        <constructor-arg ref="awsCredentials"/>
+    </bean>
+
+    <!-- DynamoDB Resource Factory -->
+    <bean id="dynamoDBResourceFactory"
+          class="com.logitopia.jmortar.core.persistence.dao.builder.DynamoDBResourceFactory" />
+</beans>
