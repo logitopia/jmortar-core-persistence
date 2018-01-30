@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-dynamodb/jmortar-core-persistence-dynamodb.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-dynamodb/jmortar-core-persistence-dynamodb.iml" group="jmortar-core-persistence-dynamodb" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-dynamodb/jmortar-core-persistence-dynamodb_main.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-dynamodb/jmortar-core-persistence-dynamodb_main.iml" group="jmortar-core-persistence-dynamodb" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-dynamodb/jmortar-core-persistence-dynamodb_test.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-dynamodb/jmortar-core-persistence-dynamodb_test.iml" group="jmortar-core-persistence-dynamodb" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-hibernate/jmortar-core-persistence-hibernate.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-hibernate/jmortar-core-persistence-hibernate.iml" group="jmortar-core-persistence-hibernate" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-hibernate/jmortar-core-persistence-hibernate_main.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-hibernate/jmortar-core-persistence-hibernate_main.iml" group="jmortar-core-persistence-hibernate" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-hibernate/jmortar-core-persistence-hibernate_test.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence-hibernate/jmortar-core-persistence-hibernate_test.iml" group="jmortar-core-persistence-hibernate" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence.iml" group="jmortar-core-persistence" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_main.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_main.iml" group="jmortar-core-persistence" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_test.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_test.iml" group="jmortar-core-persistence" />
+    </modules>
+  </component>
+</project>

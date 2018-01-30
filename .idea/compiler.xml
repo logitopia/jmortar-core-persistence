@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="jmortar-core-persistence-dynamodb_main" target="1.8" />
+      <module name="jmortar-core-persistence-dynamodb_test" target="1.8" />
+      <module name="jmortar-core-persistence-hibernate_main" target="1.8" />
+      <module name="jmortar-core-persistence-hibernate_test" target="1.8" />
+      <module name="jmortar-core-persistence-jmortar-core-persistence_main" target="1.8" />
+      <module name="jmortar-core-persistence-jmortar-core-persistence_test" target="1.8" />
+      <module name="platform-core-persistence-dynamodb_main" target="1.8" />
+      <module name="platform-core-persistence-dynamodb_test" target="1.8" />
+      <module name="platform-core-persistence-hibernate_main" target="1.8" />
+      <module name="platform-core-persistence-hibernate_test" target="1.8" />
+      <module name="platform-core-persistence-platform-core-persistence_main" target="1.8" />
+      <module name="platform-core-persistence-platform-core-persistence_test" target="1.8" />
+      <module name="platform-core-persistence_main" target="1.8" />
+      <module name="platform-core-persistence_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
