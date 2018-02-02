@@ -8,11 +8,11 @@ import com.logitopia.jmortar.core.persistence.fixtures.builder.NonPersistentMode
 import com.logitopia.jmortar.core.persistence.fixtures.builder.annotation.InventedNonPersistent;
 import com.logitopia.jmortar.core.persistence.fixtures.builder.annotation.InventedPersistent;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -92,9 +92,14 @@ public class PersistenceConfigurationBuilderGetDomainConfigUnitTest
     public void testBasicSuccess() {
         LOG.info("Test basic success");
 
-        Object result = executePrivateMethod("getDomainConfig",
-                new Class[]{Class.class},
-                new Object[]{BasicModel.class});
+        Object result = null;
+        try {
+            result = executePrivateMethod("getDomainConfig",
+                    new Class[]{Class.class},
+                    new Object[]{BasicModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run test method");
+        }
 
         assertNotNull("Has a result been found?", result);
         assertTrue("Is the result the correct type?", result instanceof DomainPersistenceBuilderConfig);

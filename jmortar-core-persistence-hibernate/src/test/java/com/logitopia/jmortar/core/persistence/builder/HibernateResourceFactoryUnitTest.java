@@ -6,6 +6,7 @@ import com.logitopia.jmortar.core.persistence.dao.model.HibernateResource;
 import com.logitopia.jmortar.core.persistence.fixtures.MockPersistentModel;
 import com.logitopia.jmortar.core.persistence.fixtures.MockPersistentModelSessionFactoryBean;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.hibernate.SessionFactory;
 import org.junit.*;
 import org.slf4j.Logger;
@@ -69,9 +70,14 @@ public class HibernateResourceFactoryUnitTest
     public void testGetSessionFactoryBeanNameNoSessionFactory() {
         LOG.info("Test getSessionFactoryBeanName with no Session Factory in model");
 
-        Object resultObj = executePrivateMethod("getSessionFactoryBeanName",
-                new Class[]{Class.class},
-                new Object[]{MockPersistentModel.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getSessionFactoryBeanName",
+                    new Class[]{Class.class},
+                    new Object[]{MockPersistentModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run getSessionFactoryBeanName method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof String);
@@ -87,9 +93,14 @@ public class HibernateResourceFactoryUnitTest
     public void testGetSessionFactoryBeanNameWithSessionFactory() {
         LOG.info("Test getSessionFactoryBeanName with a Session Factory in model");
 
-        Object resultObj = executePrivateMethod("getSessionFactoryBeanName",
-                new Class[]{Class.class},
-                new Object[]{MockPersistentModelSessionFactoryBean.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getSessionFactoryBeanName",
+                    new Class[]{Class.class},
+                    new Object[]{MockPersistentModelSessionFactoryBean.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run getSessionFactoryBeanName method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof String);

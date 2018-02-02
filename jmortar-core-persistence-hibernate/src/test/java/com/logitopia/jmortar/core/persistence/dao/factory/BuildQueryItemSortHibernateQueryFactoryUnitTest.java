@@ -9,9 +9,12 @@ import com.logitopia.jmortar.core.persistence.dao.model.QueryItem;
 import com.logitopia.jmortar.core.persistence.dao.model.impl.QueryItemImpl;
 import com.logitopia.jmortar.core.persistence.dao.model.type.QueryItemSortType;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -71,10 +74,15 @@ public class BuildQueryItemSortHibernateQueryFactoryUnitTest
   @Test
   public void testBasicSuccess() {
     LOG.info("Test basic success");
-    
-    Object result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
-            new Object[] {testQueryItem});
-    
+
+    Object result = null;
+    try {
+      result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
+              new Object[] {testQueryItem});
+    } catch (PrivateTestMethodException e) {
+      fail("Unable to run buildQueryItemSort method.");
+    }
+
     assertNotNull("Is the result null", result);
     assertTrue("Is the result the correct type", result instanceof String);
     
@@ -93,10 +101,15 @@ public class BuildQueryItemSortHibernateQueryFactoryUnitTest
     
     testQueryItem.setField("testField");
     testQueryItem.setSortType(QueryItemSortType.ASC);
-    
-    Object result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
-            new Object[] {testQueryItem});
-    
+
+    Object result = null;
+    try {
+      result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
+              new Object[] {testQueryItem});
+    } catch (PrivateTestMethodException e) {
+      fail("Unable to run buildQueryItemSort method.");
+    }
+
     assertNotNull("Is the result null", result);
     assertTrue("Is the result the correct type", result instanceof String);
     
@@ -115,10 +128,15 @@ public class BuildQueryItemSortHibernateQueryFactoryUnitTest
     
     testQueryItem.setField("testField");
     testQueryItem.setSortType(QueryItemSortType.DESC);
-    
-    Object result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
-            new Object[] {testQueryItem});
-    
+
+    Object result = null;
+    try {
+      result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
+              new Object[] {testQueryItem});
+    } catch (PrivateTestMethodException e) {
+      fail("Unable to run buildQueryItemSort method.");
+    }
+
     assertNotNull("Is the result null", result);
     assertTrue("Is the result the correct type", result instanceof String);
     
@@ -137,10 +155,15 @@ public class BuildQueryItemSortHibernateQueryFactoryUnitTest
     
     testQueryItem.setField("testField");
     testQueryItem.setSortType(QueryItemSortType.NONE);
-    
-    Object result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
-            new Object[] {testQueryItem});
-    
+
+    Object result = null;
+    try {
+      result = executePrivateMethod("buildQueryItemSort", new Class[] {QueryItem.class},
+              new Object[] {testQueryItem});
+    } catch (PrivateTestMethodException e) {
+      fail("Unable to run buildQueryItemSort method.");
+    }
+
     assertNull("Is the result null", result);
   }
 }

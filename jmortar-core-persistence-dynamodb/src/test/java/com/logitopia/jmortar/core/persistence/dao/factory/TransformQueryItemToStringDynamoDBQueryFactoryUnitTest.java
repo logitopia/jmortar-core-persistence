@@ -12,8 +12,12 @@ import com.logitopia.jmortar.core.persistence.dao.model.type.QueryItemComparator
 import com.logitopia.jmortar.core.persistence.dao.model.type.QueryItemSortType;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
 import java.util.Map;
+
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.junit.After;
 import org.junit.AfterClass;
+
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -88,10 +92,15 @@ public class TransformQueryItemToStringDynamoDBQueryFactoryUnitTest
     item.setValue("testValue");
     item.setComparator(QueryItemComparator.EQUALS);
     item.setSortType(QueryItemSortType.NONE);
-    
-    Object resultObj = executePrivateMethod("transformQueryItemToString",
-            new Class[] {QueryItem.class}, new Object[] {item});
-    
+
+    Object resultObj = null;
+    try {
+      resultObj = executePrivateMethod("transformQueryItemToString",
+              new Class[] {QueryItem.class}, new Object[] {item});
+    } catch (PrivateTestMethodException e) {
+      fail("Unable to run transformQueryItemToString method.");
+    }
+
     assertNotNull("Is the result null", resultObj);
     assertTrue("Is the result the correct type", resultObj instanceof Map);
     

@@ -3,10 +3,12 @@ package com.logitopia.jmortar.core.persistence.dao.builder;
 import com.logitopia.jmortar.core.persistence.dao.fixtures.MockDynamoDBModel;
 import com.logitopia.jmortar.core.persistence.dao.fixtures.MockDynamoDBWithParams;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -53,9 +55,14 @@ public class DynamoDBResourceFactoryUnitTest
     public void testGetCredentialsProviderBeanNameNoCredentialsProvider() {
         LOG.info("Test getSessionFactoryBeanName with no credentials provider in model");
 
-        Object resultObj = executePrivateMethod("getCredentialsProviderBeanName",
-                new Class[]{Class.class},
-                new Object[]{MockDynamoDBModel.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getCredentialsProviderBeanName",
+                    new Class[]{Class.class},
+                    new Object[]{MockDynamoDBModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run getCredentialsProviderBeanName method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof String);
@@ -71,9 +78,14 @@ public class DynamoDBResourceFactoryUnitTest
     public void testGetCredentialsProviderBeanNameWithCredentialsProvider() {
         LOG.info("Test getCredentialsProviderBeanName with credentials provider in model");
 
-        Object resultObj = executePrivateMethod("getCredentialsProviderBeanName",
-                new Class[]{Class.class},
-                new Object[]{MockDynamoDBWithParams.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getCredentialsProviderBeanName",
+                    new Class[]{Class.class},
+                    new Object[]{MockDynamoDBWithParams.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run getCredentialsProviderBeanName method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof String);
@@ -89,9 +101,14 @@ public class DynamoDBResourceFactoryUnitTest
     public void testGetRegionsProviderBeanNameNoCredentialsProvider() {
         LOG.info("Test getRegionsBeanName with no credentials provider in model");
 
-        Object resultObj = executePrivateMethod("getRegionsBeanName",
-                new Class[]{Class.class},
-                new Object[]{MockDynamoDBModel.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getRegionsBeanName",
+                    new Class[]{Class.class},
+                    new Object[]{MockDynamoDBModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run getRegionsBeanName method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof String);
@@ -107,9 +124,14 @@ public class DynamoDBResourceFactoryUnitTest
     public void testGetRegionsBeanNameWithRegions() {
         LOG.info("Test getRegionsBeanName with credentials provider in model");
 
-        Object resultObj = executePrivateMethod("getCredentialsProviderBeanName",
-                new Class[]{Class.class},
-                new Object[]{MockDynamoDBWithParams.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getCredentialsProviderBeanName",
+                    new Class[]{Class.class},
+                    new Object[]{MockDynamoDBWithParams.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run getCredentialsProviderBeanName method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof String);
@@ -125,9 +147,14 @@ public class DynamoDBResourceFactoryUnitTest
     public void testGetNoOfThreadsNoThreads() {
         LOG.info("Test getNoOfThreads with no number of threads specified in model");
 
-        Object resultObj = executePrivateMethod("getNoOfThreads",
-                new Class[]{Class.class},
-                new Object[]{MockDynamoDBModel.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getNoOfThreads",
+                    new Class[]{Class.class},
+                    new Object[]{MockDynamoDBModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run the getNoOfThreads method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type an integer", resultObj instanceof Integer);
@@ -143,9 +170,14 @@ public class DynamoDBResourceFactoryUnitTest
     public void testGetNoOfThreadsWithNoOfThreads() {
         LOG.info("Test getRegionsBeanName with credentials provider in model");
 
-        Object resultObj = executePrivateMethod("getNoOfThreads",
-                new Class[]{Class.class},
-                new Object[]{MockDynamoDBWithParams.class});
+        Object resultObj = null;
+        try {
+            resultObj = executePrivateMethod("getNoOfThreads",
+                    new Class[]{Class.class},
+                    new Object[]{MockDynamoDBWithParams.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run the getNoOfThreads method.");
+        }
 
         assertNotNull("Is the result null", resultObj);
         assertTrue("Is the result type a String", resultObj instanceof Integer);

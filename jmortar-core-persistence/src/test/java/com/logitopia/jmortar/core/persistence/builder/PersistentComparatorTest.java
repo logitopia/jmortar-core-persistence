@@ -3,6 +3,7 @@ package com.logitopia.jmortar.core.persistence.builder;
 import com.logitopia.jmortar.core.persistence.fixtures.AnnotatedNonParentModel;
 import com.logitopia.jmortar.core.persistence.fixtures.ParentModel;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,9 +64,14 @@ public final class PersistentComparatorTest
     public void testIsModelParentBasicSuccess() {
         LOG.info("Test basic success");
 
-        Object result = executePrivateMethod("isModelParent",
-                new Class[]{Class.class},
-                new Object[]{ParentModel.class});
+        Object result = null;
+        try {
+            result = executePrivateMethod("isModelParent",
+                    new Class[]{Class.class},
+                    new Object[]{ParentModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run isModelParent method.");
+        }
 
         assertNotNull("Is the result null", result);
         assertTrue("Is the result the expected type", result instanceof Boolean);
@@ -82,9 +88,14 @@ public final class PersistentComparatorTest
     public void testIsModelParentSuccessWithAnnotatedNoParent() {
         LOG.info("Test success with Annotated model that is not a parent");
 
-        Object result = executePrivateMethod("isModelParent",
-                new Class[]{Class.class},
-                new Object[]{AnnotatedNonParentModel.class});
+        Object result = null;
+        try {
+            result = executePrivateMethod("isModelParent",
+                    new Class[]{Class.class},
+                    new Object[]{AnnotatedNonParentModel.class});
+        } catch (PrivateTestMethodException e) {
+            fail("Unable to run isModelParent method.");
+        }
 
         assertNotNull("Is the result null", result);
         assertTrue("Is the result the expected type", result instanceof Boolean);

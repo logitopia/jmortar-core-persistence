@@ -4,6 +4,7 @@ import com.logitopia.jmortar.core.object.annotation.AnnotationSearcher;
 import com.logitopia.jmortar.core.persistence.fixtures.AnnotatedNonParentModel;
 import com.logitopia.jmortar.core.persistence.fixtures.ParentModel;
 import com.logitopia.jmortar.core.test.AbstractUnitTest;
+import com.logitopia.jmortar.core.test.exception.PrivateTestMethodException;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -82,9 +84,14 @@ public final class PersistenceConfigurationBuilderSortAnnotatedModelsTest
     public void testBasicSuccess() {
         LOG.info("Test basic success");
 
-        executePrivateMethod("sortAnnotatedModels",
-                new Class[]{List.class},
-                new Object[]{testClassList});
+        try {
+            executePrivateMethod("sortAnnotatedModels",
+                    new Class[]{List.class},
+                    new Object[]{testClassList});
+        } catch (PrivateTestMethodException ex) {
+            fail("Unable to run the sortAnnotatedModels method");
+        }
+
 
         assertEquals("Is the sorted list the correct size", 4, testClassList.size());
 
