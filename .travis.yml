@@ -6,7 +6,7 @@ jdk:
 before_install:
     - chmod +x gradlew
 
-script:
-    - ./gradlew jmortar-core-persistence:assemble
+install:
+    - ./gradlew jmortar-core-persistence:assemble publishToMavenLocal
     - ./gradlew jmortar-core-persistence-hibernate:assemble
     - ./gradlew jmortar-core-persistence-dynamodb:assemble
