@@ -1,0 +1,12 @@
+language: java
+
+jdk:
+    - oraclejdk8
+
+before_install:
+    - chmod +x gradlew
+
+script:
+    - ./gradlew jmortar-core-persistence:assemble
+    - ./gradlew jmortar-core-persistence-hibernate:assemble
+    - ./gradlew jmortar-core-persistence-dynamodb:assemble
