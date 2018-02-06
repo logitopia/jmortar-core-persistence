@@ -5,27 +5,40 @@
  * For more details take a look at the Java Quickstart chapter in the Gradle
  * user guide available at https://docs.gradle.org/3.5/userguide/tutorial_java_projects.html
  */
-
-/*
-// Apply the java plugin to add support for Java
-apply plugin: 'java'
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-    // Use 'jcenter' for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.0"
+    }
 }
 
-// In this section you declare the dependencies for your production and test code
-dependencies {
-    // The production code uses the SLF4J logging API at compile time
-    compile 'org.slf4j:slf4j-api:1.7.22'
+subprojects {
+    apply plugin: 'java'
 
-    // Declare the dependency for your favourite test framework you want to use in your tests.
-    // TestNG is also supported by the Gradle Test task. Just change the
-    // testCompile dependency to testCompile 'org.testng:testng:6.8.1' and add
-    // 'test.useTestNG()' to your build script.
-    testCompile 'junit:junit:4.12'
+    // Disable the test report for the individual test task
+    test {
+        reports.html.enabled = false
+    }
 }
-*/
+
+//task testReport(type: TestReport) {
+//    destinationDir = file("$buildDir/reports/allTests")
+//    // Include the results from the `test` task in all subprojects
+//    reportOn subprojects*.test
+//}
+
+task testReports( type : TestReport ) {
+    group 'Create a release'
+    description 'Runs test reports and outputs them to the sites directory so that they are published.'
+
+    // Store the test reports into our documentation site
+    destinationDir = file("docs/TestReport/${version.replaceAll("\\."  ,  "_")}")
+//    reports.junitXml.destination = new File("docs/TestReport/${version.replaceAll("\\."  ,  "_")}/xml")
+//    reports.html.destination = new File("docs/TestReport/${version.replaceAll("\\."  ,  "_")}")
+
+    reportOn subprojects*.test
+}

@@ -1,0 +1,18 @@
+/* Logitopia Bootstrap Theme */
+.navbar {
+    border-bottom: 5px solid #70C95D !important;
+}
+
+.lt-logo {
+    width: 30px;
+    height: auto;
+}
+
+.navbar-brand {
+    color: #70C95D !important;
+}
+
+path.lt-logo {
+    fill: #70C95D !important;
+    stroke: #70C95D !important;
+}
