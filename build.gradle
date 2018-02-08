@@ -5,6 +5,14 @@
  * For more details take a look at the Java Quickstart chapter in the Gradle
  * user guide available at https://docs.gradle.org/3.5/userguide/tutorial_java_projects.html
  */
+apply plugin: 'java-library'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'jacoco'
+
+version = '1.0.0'
+
 buildscript {
     repositories {
         maven {
@@ -17,19 +25,33 @@ buildscript {
 }
 
 subprojects {
-    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'jacoco'
 
     // Disable the test report for the individual test task
     test {
         reports.html.enabled = false
     }
+
+    jacocoTestReport {
+        additionalSourceDirs = files(sourceSets.main.allSource.srcDirs)
+        sourceDirectories = files(sourceSets.main.allSource.srcDirs)
+        classDirectories =  files(sourceSets.main.output)
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.destination file("${buildDir}/reports/jacoco/jacocoHtml")
+        }
+    }
 }
 
-//task testReport(type: TestReport) {
-//    destinationDir = file("$buildDir/reports/allTests")
-//    // Include the results from the `test` task in all subprojects
-//    reportOn subprojects*.test
-//}
+repositories {
+    maven {
+        url "https://plugins.gradle.org/m2/"
+    }
+
+    jcenter()
+}
 
 task testReports( type : TestReport ) {
     group 'Create a release'
@@ -37,8 +59,37 @@ task testReports( type : TestReport ) {
 
     // Store the test reports into our documentation site
     destinationDir = file("docs/TestReport/${version.replaceAll("\\."  ,  "_")}")
-//    reports.junitXml.destination = new File("docs/TestReport/${version.replaceAll("\\."  ,  "_")}/xml")
-//    reports.html.destination = new File("docs/TestReport/${version.replaceAll("\\."  ,  "_")}")
 
     reportOn subprojects*.test
+}
+
+task buildJavadoc( type : Javadoc ) {
+    group 'Create a release'
+    description 'Builds all required Javadoc and outputs it to the sites directory that it is published.'
+
+    // Build javadoc for all of the Java source (non-optional)
+    source subprojects.collect {project -> project.sourceSets.main.allJava }
+    classpath = files(subprojects.collect {project -> project.sourceSets.main.compileClasspath})
+
+    // Make a directory for this release
+    def outputDir = "docs/javadoc/${version.replaceAll("\\."  ,  "_")}"
+    File versionDir = new File(outputDir)
+    versionDir.mkdirs()
+
+    destinationDir = versionDir
+}
+
+task testCoverage( type: JacocoReport ) {
+    group 'Create a release'
+    description 'Run the test coverate reports and output them to the sites directory.'
+
+    sourceDirectories = files(subprojects.sourceSets.main.allSource.srcDirs)
+    classDirectories = files(subprojects.sourceSets.main.output)
+    executionData = files(subprojects.jacocoTestReport.executionData)
+
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.destination file("docs/jacoco/${version.replaceAll("\\.", "_")}/jacocoHtml")
+    }
 }

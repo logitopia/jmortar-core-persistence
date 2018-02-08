@@ -12,6 +12,8 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence.iml" group="jmortar-core-persistence" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_main.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_main.iml" group="jmortar-core-persistence" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_test.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence/jmortar-core-persistence-jmortar-core-persistence_test.iml" group="jmortar-core-persistence" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence_main.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence_main.iml" group="jmortar-core-persistence" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/jmortar-core-persistence_test.iml" filepath="$PROJECT_DIR$/.idea/modules/jmortar-core-persistence_test.iml" group="jmortar-core-persistence" />
     </modules>
   </component>
 </project>
