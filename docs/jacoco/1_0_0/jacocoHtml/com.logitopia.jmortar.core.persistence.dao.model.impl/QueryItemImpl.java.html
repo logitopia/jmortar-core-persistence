@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>QueryItemImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.model.impl</a> &gt; <span class="el_source">QueryItemImpl.java</span></div><h1>QueryItemImpl.java</h1><pre class="source lang-java linenums">/* 
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.model.impl;
+
+import com.logitopia.jmortar.core.persistence.dao.model.QueryItem;
+import com.logitopia.jmortar.core.object.util.impl.HashCodeUtil;
+import com.logitopia.jmortar.core.persistence.dao.model.type.QueryItemComparator;
+import com.logitopia.jmortar.core.persistence.dao.model.type.QueryItemSortType;
+import org.apache.log4j.Logger;
+
+/**
+ * The class &lt;tt&gt;QueryItemImpl&lt;/tt&gt; represents an implementation of the
+ * &lt;tt&gt;QueryItem&lt;/tt&gt; interface. This implements a comparable and copy-able class.
+ */
+<span class="fc" id="L17">public final class QueryItemImpl implements QueryItem {</span>
+
+  /**
+   * The logger for this class.
+   */
+<span class="fc" id="L22">  public static final Logger LOG</span>
+<span class="fc" id="L23">          = Logger.getLogger(QueryItemImpl.class);</span>
+  
+  /**
+   * The field of the &lt;tt&gt;Storable&lt;/tt&gt; to be queried.
+   */
+  private String field;
+
+  /**
+   * The value to query for.
+   */
+  private Object value;
+  
+  /**
+   * The entity to query for.
+   */
+  private String entity;
+
+  /**
+   * The type of comparison operation for this operation.
+   */
+  private QueryItemComparator comparator;
+
+  /**
+   * Specifies whether this operation is negated.
+   */
+  private boolean not;
+
+  /**
+   * The sort type for this query item.
+   */
+  private QueryItemSortType sortType;
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getField() {
+<span class="fc" id="L60">    return field;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setField(final String newField) {
+<span class="fc" id="L68">    field = newField;</span>
+<span class="fc" id="L69">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object getValue() {
+<span class="fc" id="L76">    return value;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setValue(Object newValue) {
+<span class="fc" id="L84">    value = newValue;</span>
+<span class="fc" id="L85">  }</span>
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getEntity() {
+<span class="nc" id="L92">    return entity;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setEntity(final String newEntity) {
+<span class="fc" id="L100">    entity = newEntity;</span>
+<span class="fc" id="L101">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public QueryItemComparator getComparator() {
+<span class="fc" id="L108">    return comparator;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setComparator(final QueryItemComparator newQueryItemComparator) {
+<span class="fc" id="L116">    comparator = newQueryItemComparator;</span>
+<span class="fc" id="L117">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean isNot() {
+<span class="fc" id="L124">    return not;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setNot(boolean newNot) {
+<span class="nc" id="L132">    not = newNot;</span>
+<span class="nc" id="L133">  }</span>
+  
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public QueryItemSortType getSortType() {
+<span class="fc" id="L140">    return sortType;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void setSortType(final QueryItemSortType newSortType) {
+<span class="fc" id="L148">    sortType = newSortType;</span>
+<span class="fc" id="L149">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int hashCode() {
+<span class="nc" id="L156">    int hash = HashCodeUtil.SEED;</span>
+
+<span class="nc" id="L158">    hash = HashCodeUtil.hash(hash, field);</span>
+<span class="nc" id="L159">    hash = HashCodeUtil.hash(hash, value);</span>
+<span class="nc" id="L160">    hash = HashCodeUtil.hash(hash, entity);</span>
+<span class="nc" id="L161">    hash = HashCodeUtil.hash(hash, comparator);</span>
+<span class="nc" id="L162">    hash = HashCodeUtil.hash(hash, not);</span>
+
+<span class="nc" id="L164">    return hash;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean equals(final Object obj) {
+<span class="nc" id="L172">    boolean result = false;</span>
+
+<span class="nc bnc" id="L174" title="All 4 branches missed.">    if (obj != null &amp;&amp; getClass() != obj.getClass()) {</span>
+<span class="nc" id="L175">      final QueryItemImpl that = (QueryItemImpl) obj;</span>
+
+<span class="nc bnc" id="L177" title="All 6 branches missed.">      if ((field != null &amp;&amp; field.equals(that.field))</span>
+<span class="nc bnc" id="L178" title="All 4 branches missed.">              &amp;&amp; (value != null &amp;&amp; value.equals(that.value))</span>
+<span class="nc bnc" id="L179" title="All 4 branches missed.">              &amp;&amp; (entity != null &amp;&amp; entity.equals(that.entity))</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">              &amp;&amp; (comparator != null &amp;&amp; comparator.equals(that.comparator))</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">              &amp;&amp; Boolean.compare(not, that.not) == 0</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">              &amp;&amp; sortType.equals(that.sortType)) {</span>
+<span class="nc" id="L183">        result = true;</span>
+      }
+    }
+
+<span class="nc" id="L187">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

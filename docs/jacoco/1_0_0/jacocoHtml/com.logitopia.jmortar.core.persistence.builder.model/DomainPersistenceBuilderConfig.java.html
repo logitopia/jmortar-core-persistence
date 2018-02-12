@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DomainPersistenceBuilderConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.builder.model</a> &gt; <span class="el_source">DomainPersistenceBuilderConfig.java</span></div><h1>DomainPersistenceBuilderConfig.java</h1><pre class="source lang-java linenums">package com.logitopia.jmortar.core.persistence.builder.model;
+
+import com.logitopia.jmortar.core.persistence.builder.DACBuilder;
+import com.logitopia.jmortar.core.persistence.builder.ResourceFactory;
+import com.logitopia.jmortar.core.persistence.dao.factory.QueryFactory;
+
+import java.util.Map;
+
+/**
+ * A model that contains the domain configuration for the Persistence Configuration Builder. Saves on using a bunch of
+ * maps in the configuration builder.
+ */
+public class DomainPersistenceBuilderConfig {
+
+    /**
+     * The resource factory that generates the domain resource.
+     */
+    private ResourceFactory resourceFactory;
+
+    /**
+     * The query factory to build into the persistent objects. This is specific to the domain ONLY, therefore it can be
+     * injected into the configuration.
+     */
+    private QueryFactory queryFactory;
+
+    /**
+     * The data access component builder configured for the type of annotation we are building for.
+     */
+    private DACBuilder dacBuilder;
+
+    /**
+     * The query item builders.
+     */
+    private Map queryItemBuilders;
+
+    /**
+     * Default Constructor. Create a new instance of the DomainPersistenceBuilderConfig.
+     *
+     * @param newResourceFactory   The resource factory.
+     * @param newQueryFactory      The query factory.
+     * @param newDACBuilder        The data access component builder.
+     * @param newQueryItemBuilders A map of Query Item Builders.
+     */
+    public DomainPersistenceBuilderConfig(final ResourceFactory newResourceFactory,
+            final QueryFactory newQueryFactory,
+            final DACBuilder newDACBuilder,
+<span class="nc" id="L47">            final Map newQueryItemBuilders) {</span>
+<span class="nc" id="L48">        this.resourceFactory = newResourceFactory;</span>
+<span class="nc" id="L49">        this.queryFactory = newQueryFactory;</span>
+<span class="nc" id="L50">        this.dacBuilder = newDACBuilder;</span>
+<span class="nc" id="L51">        this.queryItemBuilders = newQueryItemBuilders;</span>
+<span class="nc" id="L52">    }</span>
+
+    /**
+     * Default Constructor. Create a new instance of the DomainPersistenceBuilderConfig.
+     *
+     * @param newResourceFactory  The resource factory.
+     * @param newQueryFactory     The query factory.
+     * @param newDACBuilder       The data access component builder.
+     */
+    public DomainPersistenceBuilderConfig(final ResourceFactory newResourceFactory,
+            final QueryFactory newQueryFactory,
+<span class="fc" id="L63">            final DACBuilder newDACBuilder) {</span>
+<span class="fc" id="L64">        this.resourceFactory = newResourceFactory;</span>
+<span class="fc" id="L65">        this.queryFactory = newQueryFactory;</span>
+<span class="fc" id="L66">        this.dacBuilder = newDACBuilder;</span>
+<span class="fc" id="L67">    }</span>
+
+    /**
+     * Get the resource factory for this domain.
+     *
+     * @return The resource factory.
+     */
+    public ResourceFactory getResourceFactory() {
+<span class="fc" id="L75">        return resourceFactory;</span>
+    }
+
+    /**
+     * Get the query factory for this domain.
+     *
+     * @return The query factory
+     */
+    public QueryFactory getQueryFactory() {
+<span class="fc" id="L84">        return queryFactory;</span>
+    }
+
+    /**
+     * Get the DAC builder strategy.
+     *
+     * @return The DAC Builder.
+     */
+    public DACBuilder getDacBuilder() {
+<span class="fc" id="L93">        return dacBuilder;</span>
+    }
+
+    /**
+     * Get the query item builders.
+     *
+     * @return The query item builders.
+     */
+    public Map getQueryItemBuilders() {
+<span class="fc" id="L102">        return queryItemBuilders;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

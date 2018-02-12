@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WritableDynamoDBDataAccessComponentImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.component.impl</a> &gt; <span class="el_source">WritableDynamoDBDataAccessComponentImpl.java</span></div><h1>WritableDynamoDBDataAccessComponentImpl.java</h1><pre class="source lang-java linenums">/*
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.component.impl;
+
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.logitopia.jmortar.core.persistence.dao.component.WritableDataAccessComponent;
+import com.logitopia.jmortar.core.persistence.dao.model.DynamoDBResource;
+import com.logitopia.jmortar.core.persistence.exception.DataAccessWriteDuplicateEntryException;
+import com.logitopia.jmortar.core.persistence.exception.DataAccessWriteLockingException;
+import org.apache.log4j.Logger;
+
+/**
+ * The &lt;tt&gt;WritableDynamoDBDataAccessComponentImpl&lt;/tt&gt; class is an implementation of
+ * &lt;tt&gt;WritableDataAccessComponent&lt;/tt&gt; that uses AWS dynamo DB to store persistent data.
+ *
+ * @author Stephen Cheesley &amp;lt;stephen.cheesley@gmail.com&amp;gt;
+ * @param &lt;T&gt; The type of model that this component deals with.
+ */
+public final class WritableDynamoDBDataAccessComponentImpl&lt;T&gt;
+        extends AbstractWritableDataAccessComponent&lt;T, DynamoDBResource&gt;
+        implements WritableDataAccessComponent&lt;T&gt; {
+
+  /**
+   * The logger for this class.
+   */
+<span class="nc" id="L31">  public static final Logger LOG</span>
+<span class="nc" id="L32">          = Logger.getLogger(WritableDynamoDBDataAccessComponentImpl.class);</span>
+
+  /**
+   * The credential provider that is used to create the dynamo DB client.
+   */
+  private AWSCredentialsProvider credentialProvider;
+
+  /**
+   * The region that the dynamo DB resides in.
+   */
+  private Regions awsRegion;
+
+  /**
+   * Default Constructor. Create a new writable DAC with the required AWS Credential provider.
+   *
+   * @param newResource The persistent resource payload.
+   */
+  public WritableDynamoDBDataAccessComponentImpl(final DynamoDBResource newResource) {
+<span class="nc" id="L50">    super(newResource);</span>
+<span class="nc" id="L51">    credentialProvider = newResource.getCredentialsProvider();</span>
+<span class="nc" id="L52">    awsRegion = newResource.getRegions();</span>
+<span class="nc" id="L53">  }</span>
+
+  /**
+   * Create an AWS dynamo client to allow for connection to amazon.
+   *
+   * @return The configured client.
+   */
+  private AmazonDynamoDBClient createClient() {
+<span class="nc" id="L61">    return new AmazonDynamoDBClient(credentialProvider).withRegion(awsRegion);</span>
+  }
+
+  /**
+   * Save the model to the document database. This operation is generic so has been abstracted to a
+   * private method to be run by both &quot;save&quot; and &quot;update&quot; operations.
+   *
+   * @param newModel The model to be saved.
+   */
+  private void saveModel(T newModel) {
+<span class="nc" id="L71">    AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L72">    DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+    try {
+<span class="nc" id="L75">      mapper.save(newModel);</span>
+<span class="nc" id="L76">    } catch (Exception all) {</span>
+<span class="nc" id="L77">      LOG.error(&quot;Issue during save&quot;, all);</span>
+<span class="nc" id="L78">    }</span>
+    
+<span class="nc" id="L80">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void save(T newModel) throws DataAccessWriteLockingException,
+          DataAccessWriteDuplicateEntryException {
+<span class="nc" id="L88">    saveModel(newModel);</span>
+<span class="nc" id="L89">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void update(T newModel) throws DataAccessWriteLockingException {
+<span class="nc" id="L96">    saveModel(newModel);</span>
+<span class="nc" id="L97">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void delete(T newModel) throws DataAccessWriteLockingException {
+<span class="nc" id="L104">    AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L105">    DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+<span class="nc" id="L107">    mapper.delete(newModel);</span>
+<span class="nc" id="L108">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

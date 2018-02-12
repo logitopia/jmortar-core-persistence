@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReadableDynamoDBDataAccessComponentImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.component.impl</a> &gt; <span class="el_source">ReadableDynamoDBDataAccessComponentImpl.java</span></div><h1>ReadableDynamoDBDataAccessComponentImpl.java</h1><pre class="source lang-java linenums">/*
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.component.impl;
+
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedParallelScanList;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
+import com.logitopia.jmortar.core.persistence.dao.component.ReadableDataAccessComponent;
+import com.logitopia.jmortar.core.persistence.dao.component.handler.DACQueryItemBuilder;
+import com.logitopia.jmortar.core.persistence.dao.factory.QueryFactory;
+import com.logitopia.jmortar.core.persistence.dao.model.DynamoDBResource;
+import com.logitopia.jmortar.core.persistence.dao.model.Query;
+import com.logitopia.jmortar.core.persistence.dao.model.impl.QueryFactoryRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The &lt;tt&gt;ReadableDynamoDBDataAccessComponentImpl&lt;/tt&gt; class is an implementation of
+ * &lt;tt&gt;ReadableDataAccessComponent&lt;/tt&gt; that uses Dynamo DB to retrieve persistent data.
+ *
+ * @param &lt;T&gt; The type of model that this component deals with.
+ * @author Stephen Cheesley &amp;lt;stephen.cheesley@gmail.com&amp;gt;
+ */
+public class ReadableDynamoDBDataAccessComponentImpl&lt;T&gt;
+        extends AbstractReadableDataAccessComponent&lt;T, DynamoDBQueryExpression, Class, Object, DynamoDBResource&gt;
+        implements ReadableDataAccessComponent&lt;T&gt; {
+
+    /**
+     * The logger for this class.
+     */
+<span class="nc" id="L43">    private static final Logger LOG =</span>
+<span class="nc" id="L44">            LoggerFactory.getLogger(ReadableDynamoDBDataAccessComponentImpl.class);</span>
+
+    /**
+     * The fields in the model that comprise its unique key.
+     */
+    private List&lt;String&gt; keyFields;
+
+    /**
+     * The credential provider that is used to create the dynamo DB client.
+     */
+    private AWSCredentialsProvider credentialProvider;
+
+    /**
+     * The region that the dynamo DB resides in.
+     */
+    private Regions awsRegion;
+
+    /**
+     * The number of threads to be taken up by parallel retrieval operations.
+     */
+    private int noOfThreads;
+
+    /**
+     * Default Constructor. Build the readable data access component with the required dynamo DB
+     * components.
+     *
+     * @param newKeyFields    The key fields.
+     * @param newQueryFactory The query factory.
+     * @param newResource     The dynamoDB resource.
+     */
+    public ReadableDynamoDBDataAccessComponentImpl(
+            final List&lt;String&gt; newKeyFields,
+            final QueryFactory&lt;DynamoDBQueryExpression, Class, Object&gt; newQueryFactory,
+            final DynamoDBResource newResource) {
+<span class="nc" id="L78">        super(newQueryFactory, newResource);</span>
+<span class="nc" id="L79">        credentialProvider = newResource.getCredentialsProvider();</span>
+<span class="nc" id="L80">        keyFields = newKeyFields;</span>
+<span class="nc" id="L81">        awsRegion = newResource.getRegions();</span>
+<span class="nc" id="L82">        noOfThreads = newResource.getNoOfThreads();</span>
+<span class="nc" id="L83">    }</span>
+
+    /**
+     * Default Constructor. Build the readable data access component with the required dynamo DB
+     * components.
+     *
+     * @param newKeyFields The key fields of the model.
+     * @param newQueryItemBuilders  The query item builders.
+     * @param newQueryFactory       The query factory.
+     */
+    public ReadableDynamoDBDataAccessComponentImpl(
+            final List&lt;String&gt; newKeyFields,
+            final Map&lt;String, DACQueryItemBuilder&gt; newQueryItemBuilders,
+            final QueryFactory&lt;DynamoDBQueryExpression, Class, Object&gt; newQueryFactory,
+            final DynamoDBResource newResource) {
+<span class="nc" id="L98">        super(newQueryItemBuilders, newQueryFactory, newResource);</span>
+<span class="nc" id="L99">        credentialProvider = newResource.getCredentialsProvider();</span>
+<span class="nc" id="L100">        keyFields = newKeyFields;</span>
+<span class="nc" id="L101">        awsRegion = newResource.getRegions();</span>
+<span class="nc" id="L102">        noOfThreads = newResource.getNoOfThreads();</span>
+<span class="nc" id="L103">    }</span>
+
+    /**
+     * Create an AWS dynamo client to allow for connection to amazon.
+     *
+     * @return The configured client.
+     */
+    private AmazonDynamoDBClient createClient() {
+<span class="nc" id="L111">        return new AmazonDynamoDBClient(credentialProvider).withRegion(awsRegion);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;String&gt; getKeyFields() {
+<span class="nc" id="L119">        return new ArrayList&lt;&gt;(keyFields);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; getAll(final Class newClazz) {
+<span class="nc" id="L127">        List&lt;T&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L128">        AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L129">        DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+<span class="nc" id="L131">        PaginatedParallelScanList&lt;T&gt; scanResult</span>
+<span class="nc" id="L132">                = mapper.parallelScan(newClazz, new DynamoDBScanExpression(), noOfThreads);</span>
+
+    /* TODO - Update this by using a putAll on collection */
+<span class="nc bnc" id="L135" title="All 2 branches missed.">        for (T scan : scanResult) {</span>
+<span class="nc" id="L136">            result.add(scan);</span>
+<span class="nc" id="L137">        }</span>
+
+    /* Return a defensive copy */
+<span class="nc" id="L140">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; getAll(final Class newClazz, final int pageNumber, final int pageSize) {
+<span class="nc" id="L148">        List&lt;T&gt; result = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L150">        AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L151">        DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+<span class="nc" id="L153">        DynamoDBScanExpression expression = new DynamoDBScanExpression();</span>
+<span class="nc" id="L154">        expression.withLimit(pageSize);</span>
+
+<span class="nc" id="L156">        PaginatedParallelScanList&lt;T&gt; scanResult</span>
+<span class="nc" id="L157">                = mapper.parallelScan(newClazz, expression, noOfThreads);</span>
+
+<span class="nc" id="L159">        int lastItem = pageNumber * pageSize;</span>
+<span class="nc" id="L160">        int prevPageLastItem = (pageNumber - 1) * pageSize;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">        for (int i = prevPageLastItem; i &lt; lastItem; i++) {</span>
+<span class="nc" id="L162">            result.add(scanResult.get(i));</span>
+        }
+
+    /* Return a defensive copy */
+<span class="nc" id="L166">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public T getEntityByID(final Class newClazz, final long id) {
+<span class="nc" id="L174">        AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L175">        DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+<span class="nc" id="L177">        T result = (T) mapper.load(newClazz, id);</span>
+<span class="nc" id="L178">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; find(final Class newClazz, final Query findFilter) {
+        List&lt;T&gt; result;
+
+<span class="nc" id="L188">        AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L189">        DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+<span class="nc" id="L191">        DynamoDBQueryExpression query = getQueryFactory().createQuery(findFilter,</span>
+                new QueryFactoryRequest&lt;Class, Object&gt;(newClazz, null));
+
+<span class="nc" id="L194">        result = mapper.query(newClazz, query);</span>
+
+<span class="nc" id="L196">        return result;</span>
+    }
+
+    @Override
+    public List&lt;T&gt; find(final Class newClazz, final Query findFilter, int pageNumber, int pageSize) {
+<span class="nc" id="L201">        List&lt;T&gt; result = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L203">        AmazonDynamoDBClient client = createClient();</span>
+<span class="nc" id="L204">        DynamoDBMapper mapper = new DynamoDBMapper(client);</span>
+
+<span class="nc" id="L206">        DynamoDBQueryExpression query = getQueryFactory().createQuery(findFilter,</span>
+                new QueryFactoryRequest&lt;Class, Object&gt;(newClazz, null));
+<span class="nc" id="L208">        query.withLimit(pageSize);</span>
+
+<span class="nc" id="L210">        PaginatedQueryList&lt;T&gt; queryResult = mapper.query(newClazz, query);</span>
+<span class="nc" id="L211">        int lastItem = pageNumber * pageSize;</span>
+<span class="nc" id="L212">        int prevPageLastItem = (pageNumber - 1) * pageSize;</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        for (int i = prevPageLastItem; i &lt; lastItem; i++) {</span>
+<span class="nc" id="L214">            result.add(queryResult.get(i));</span>
+        }
+
+<span class="nc" id="L217">        return result;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
