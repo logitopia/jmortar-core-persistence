@@ -26,8 +26,8 @@ tasks.withType(JavaCompile) {
 }
 
 bintray {
-    user = bintrayUser
-    key = bintrayKey
+    user = project.property('bintrayUser')
+    key = project.property('bintrayKey')
     pkg {
         repo = 'jmortar-release'
         name = 'jmortar-core-persistence'
