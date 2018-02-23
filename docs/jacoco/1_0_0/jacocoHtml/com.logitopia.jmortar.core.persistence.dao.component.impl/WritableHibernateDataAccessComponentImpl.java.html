@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WritableHibernateDataAccessComponentImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.component.impl</a> &gt; <span class="el_source">WritableHibernateDataAccessComponentImpl.java</span></div><h1>WritableHibernateDataAccessComponentImpl.java</h1><pre class="source lang-java linenums">/* 
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.component.impl;
+
+import com.logitopia.jmortar.core.persistence.dao.component.WritableDataAccessComponent;
+import com.logitopia.jmortar.core.persistence.dao.model.HibernateResource;
+import com.logitopia.jmortar.core.persistence.dao.model.Resource;
+import com.logitopia.jmortar.core.persistence.exception.DataAccessWriteDuplicateEntryException;
+import com.logitopia.jmortar.core.persistence.exception.DataAccessWriteLockingException;
+import org.apache.log4j.Logger;
+import org.hibernate.*;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.orm.hibernate4.HibernateOptimisticLockingFailureException;
+
+/**
+ * The &lt;tt&gt;WritableHibernateDataAccessComponentImpl&lt;/tt&gt; class is an implementation of
+ * &lt;tt&gt;WritableDataAccessComponent&lt;/tt&gt; that uses hibernate to store persistent data.
+ *
+ * @author Stephen Cheesley &amp;lt;stephen.cheesley@gmail.com&amp;gt;
+ * @param &lt;T&gt; The type of model that this component deals with.
+ */
+public final class WritableHibernateDataAccessComponentImpl&lt;T&gt;
+        extends AbstractWritableDataAccessComponent&lt;T, HibernateResource&gt;
+        implements WritableDataAccessComponent&lt;T&gt; {
+
+  /**
+   * The logger for this class.
+   */
+<span class="nc" id="L31">  public static final Logger LOG</span>
+<span class="nc" id="L32">          = Logger.getLogger(WritableHibernateDataAccessComponentImpl.class);</span>
+
+  /**
+   * The hibernate session factory.
+   */
+  private SessionFactory sessionFactory;
+
+  /**
+   * Block Default Constructor.
+   */
+  private WritableHibernateDataAccessComponentImpl() {
+<span class="nc" id="L43">    super(null);</span>
+<span class="nc" id="L44">  }</span>
+
+  /**
+   * Create an instance of &lt;tt&gt;AbstractWritableHibernateDataAccessComponent&lt;/tt&gt;
+   * with a &lt;tt&gt;SessionFactory&lt;/tt&gt;.
+   *
+   * @param newResource The persistent resource.
+   */
+  public WritableHibernateDataAccessComponentImpl(
+          final HibernateResource newResource) {
+<span class="nc" id="L54">    super(newResource);</span>
+<span class="nc" id="L55">    sessionFactory = newResource.getSessionFactory();</span>
+<span class="nc" id="L56">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void save(final T newModel) throws DataAccessWriteLockingException,
+          DataAccessWriteDuplicateEntryException {
+<span class="nc" id="L64">    Session session = sessionFactory.openSession();</span>
+<span class="nc" id="L65">    Transaction tx = session.beginTransaction();</span>
+
+    try {
+<span class="nc" id="L68">      session.save(newModel);</span>
+<span class="nc" id="L69">      tx.commit();</span>
+<span class="nc" id="L70">    } catch (HibernateOptimisticLockingFailureException lockingEx) {</span>
+<span class="nc" id="L71">      throw new DataAccessWriteLockingException(lockingEx.getMessage());</span>
+<span class="nc" id="L72">    } catch (ConstraintViolationException cvEx) {</span>
+<span class="nc" id="L73">      Throwable constraintViolation = cvEx.getCause();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">      if (constraintViolation != null) {</span>
+<span class="nc" id="L75">        String message = constraintViolation.getMessage();</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (message.startsWith(&quot;Duplicate entry&quot;)) {</span>
+<span class="nc" id="L77">          throw new DataAccessWriteDuplicateEntryException(message);</span>
+        }
+      }
+<span class="nc" id="L80">    } catch (StaleObjectStateException staleStateEx) {</span>
+      /* NOTE: As of hibernate 4, this exception gets thrown if we try to change an entity where the version number 
+       * is out of step.
+       */
+<span class="nc" id="L84">      throw new DataAccessWriteLockingException(staleStateEx.getMessage());</span>
+    } finally {
+<span class="nc" id="L86">      session.close();</span>
+<span class="nc" id="L87">    }</span>
+<span class="nc" id="L88">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void update(final T newModel) throws DataAccessWriteLockingException {
+<span class="nc" id="L95">    Session session = sessionFactory.openSession();</span>
+<span class="nc" id="L96">    Transaction tx = session.beginTransaction();</span>
+
+    try {
+<span class="nc" id="L99">      session.update(newModel);</span>
+<span class="nc" id="L100">      tx.commit();</span>
+<span class="nc" id="L101">    } catch (HibernateOptimisticLockingFailureException lockingEx) {</span>
+<span class="nc" id="L102">      throw new DataAccessWriteLockingException(lockingEx.getMessage());</span>
+<span class="nc" id="L103">    } catch (StaleObjectStateException staleStateEx) {</span>
+      /* NOTE: As of hibernate 4, this exception gets thrown if we try to change an entity where the version number 
+       * is out of step.
+       */
+<span class="nc" id="L107">      throw new DataAccessWriteLockingException(staleStateEx.getMessage());</span>
+    } finally {
+<span class="nc" id="L109">      session.close();</span>
+<span class="nc" id="L110">    }</span>
+<span class="nc" id="L111">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void delete(final T newModel) throws DataAccessWriteLockingException {
+<span class="nc" id="L118">    Session session = sessionFactory.openSession();</span>
+<span class="nc" id="L119">    Transaction tx = session.beginTransaction();</span>
+
+    try {
+<span class="nc" id="L122">      session.delete(newModel);</span>
+<span class="nc" id="L123">      tx.commit();</span>
+<span class="nc" id="L124">    } catch (HibernateOptimisticLockingFailureException lockingEx) {</span>
+<span class="nc" id="L125">      throw new DataAccessWriteLockingException(lockingEx.getMessage());</span>
+<span class="nc" id="L126">    } catch (StaleObjectStateException staleStateEx) {</span>
+      /* NOTE: As of hibernate 4, this exception gets thrown if we try to change an entity where the version number 
+       * is out of step.
+       */
+<span class="nc" id="L130">      throw new DataAccessWriteLockingException(staleStateEx.getMessage());</span>
+    } finally {
+<span class="nc" id="L132">      session.close();</span>
+<span class="nc" id="L133">    }</span>
+<span class="nc" id="L134">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

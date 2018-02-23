@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersistentComparator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.builder</a> &gt; <span class="el_source">PersistentComparator.java</span></div><h1>PersistentComparator.java</h1><pre class="source lang-java linenums">package com.logitopia.jmortar.core.persistence.builder;
+
+import com.logitopia.jmortar.core.persistence.annotation.PersistentChild;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.Comparator;
+
+/**
+ * A &lt;tt&gt;Comparator&lt;/tt&gt; that compares two models to see if they are parents or not.
+ */
+<span class="fc" id="L12">public class PersistentComparator implements Comparator&lt;Class&gt; {</span>
+
+    /**
+     * Check to see if the given model has an instance of &lt;tt&gt;PersistentChild&lt;/tt&gt; on any of the fields
+     * (i.e. is a parent model).
+     * @param modelClass The class of the model to test.
+     * @return The flag indicating whether or not the model is a parent model (true==parent).
+     */
+    private boolean isModelParent(final Class modelClass) {
+<span class="fc bfc" id="L21" title="All 2 branches covered.">        for(Field field : modelClass.getDeclaredFields()){</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">            for (Annotation annotation:field.getDeclaredAnnotations()) {</span>
+                // Check to see if it is the PersistentChild
+<span class="fc bfc" id="L24" title="All 2 branches covered.">                if (annotation.annotationType() == PersistentChild.class) {</span>
+<span class="fc" id="L25">                    return true;</span>
+                }
+            }
+        }
+<span class="fc" id="L29">        return false;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param o1 The first object to compare.
+     * @param o2 The second object to compare.
+     * @return
+     */
+    @Override
+    public int compare(Class o1, Class o2) {
+<span class="fc" id="L40">        int result = 0;</span>
+
+<span class="fc" id="L42">        boolean b1 = isModelParent(o1);</span>
+<span class="fc" id="L43">        boolean b2 = isModelParent(o2);</span>
+
+        // Truth Table
+<span class="fc bfc" id="L46" title="All 4 branches covered.">        if (!b1 &amp;&amp; b2) result = -1; // Less than if o2 is a child (child one goes lower than one without)</span>
+<span class="fc bfc" id="L47" title="All 4 branches covered.">        if (b1 &amp;&amp; !b2) result = 1;</span>
+
+<span class="fc" id="L49">        return result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

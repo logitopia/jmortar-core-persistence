@@ -14,7 +14,7 @@ import com.logitopia.jmortar.core.persistence.dao.model.impl.QueryFactoryRequest
  * @author Stephen Cheesley
  * 
  * @param <T> The domain query to return.
- * @param <U> The type that represents entity in the <tt>>QueryFactoryRequest</tt> model.
+ * @param <U> The type that represents entity in the <tt>QueryFactoryRequest</tt> model.
  * @param <V> The type of the factory that will be used to build the query.
  */
 public interface QueryFactory<T, U, V> {

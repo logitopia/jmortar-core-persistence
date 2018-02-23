@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DynamoDBQueryFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.factory</a> &gt; <span class="el_source">DynamoDBQueryFactory.java</span></div><h1>DynamoDBQueryFactory.java</h1><pre class="source lang-java linenums">/*
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.factory;
+
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.logitopia.jmortar.core.persistence.dao.factory.attributevalue.DynamoDBAttributeValueHandler;
+import com.logitopia.jmortar.core.persistence.dao.model.Query;
+import com.logitopia.jmortar.core.persistence.dao.model.QueryItem;
+import com.logitopia.jmortar.core.persistence.dao.model.impl.QueryFactoryRequest;
+import com.logitopia.jmortar.core.persistence.dao.model.type.QueryItemComparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.log4j.Logger;
+
+/**
+ * A &lt;tt&gt;DynamoDBQueryFactory&lt;/tt&gt; is a concrete implementation of &lt;tt&gt;QueryFactory&lt;/tt&gt; that builds
+ * Amazon DynamoDB specific queries.
+ * 
+ * Sorting is achieved via a query (i.e. date LESS THAN OR EQUAL TO last 15 days)
+ *
+ * @author Stephen Cheesley
+ */
+public final class DynamoDBQueryFactory&lt;T&gt;
+        implements QueryFactory&lt;DynamoDBQueryExpression&lt;T&gt;, Class, Object&gt; {
+
+  /**
+   * The logger for this class.
+   */
+<span class="fc" id="L33">  public static final Logger LOG</span>
+<span class="fc" id="L34">          = Logger.getLogger(DynamoDBQueryFactory.class);</span>
+
+  /**
+   * The handler for building attribute values for our order item attribute values.
+   */
+  private DynamoDBAttributeValueHandler attributeValueHandler;
+
+  /**
+   * Default Constructor. Create the Query Factory with the required &lt;tt&gt;AttributeValue&lt;/tt&gt;
+   * handler.
+   *
+   * @param newAttributeValueHandler The required &lt;tt&gt;AttributeValue&lt;/tt&gt; handler.
+   */
+<span class="fc" id="L47">  public DynamoDBQueryFactory(final DynamoDBAttributeValueHandler newAttributeValueHandler) {</span>
+<span class="fc" id="L48">    attributeValueHandler = newAttributeValueHandler;</span>
+<span class="fc" id="L49">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DynamoDBQueryExpression&lt;T&gt; createGetAllQuery(
+          final QueryFactoryRequest&lt;Class, Object&gt; request) {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">    if (request != null) {</span>
+<span class="nc" id="L58">      return new DynamoDBQueryExpression&lt;T&gt;();</span>
+    } else {
+<span class="nc" id="L60">      throw new IllegalArgumentException(&quot;The request is null&quot;);</span>
+    }
+  }
+
+  /**
+   * Load query item comparator. Load a hibernate-specific HQL comparator.
+   *
+   * @param inComparator The comparator to load a value for.
+   * @return The HQL Comparator.
+   */
+  private String loadQueryItemComparator(QueryItemComparator inComparator) {
+<span class="fc" id="L71">    String result = null;</span>
+
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">    if (inComparator != null) {</span>
+<span class="pc bpc" id="L74" title="6 of 8 branches missed.">      switch (inComparator) {</span>
+        case EQUALS:
+<span class="fc" id="L76">          result = &quot;=&quot;;</span>
+<span class="fc" id="L77">          break;</span>
+        case LESS:
+<span class="nc" id="L79">          result = &quot;&lt;&quot;;</span>
+<span class="nc" id="L80">          break;</span>
+        case LESS_EQ:
+<span class="nc" id="L82">          result = &quot;&lt;=&quot;;</span>
+<span class="nc" id="L83">          break;</span>
+        case MORE:
+<span class="nc" id="L85">          result = &quot;&gt;&quot;;</span>
+<span class="nc" id="L86">          break;</span>
+        case MORE_EQ:
+<span class="fc" id="L88">          result = &quot;&gt;=&quot;;</span>
+<span class="fc" id="L89">          break;</span>
+        case NEQUALS:
+<span class="nc" id="L91">          result = &quot;&lt;&gt;&quot;;</span>
+<span class="nc" id="L92">          break;</span>
+        case LIKE:
+<span class="nc" id="L94">          result = &quot;LIKE&quot;;</span>
+<span class="fc" id="L95">          break;</span>
+      }
+    } else {
+<span class="nc" id="L98">      LOG.error(&quot;Unable to resolve query item comparator - input comparator &quot;</span>
+              + &quot;is missing.&quot;);
+    }
+
+<span class="fc" id="L102">    return result;</span>
+  }
+
+  /**
+   * Transform a query item to an HSQL query.
+   *
+   * @param queryItem A query item to transform.
+   * @return Map The HSQL query string built.
+   */
+  private Map&lt;String, Object&gt; transformQueryItemToString(
+          final QueryItem queryItem) {
+<span class="fc" id="L113">    Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L114">    StringBuilder queryString = new StringBuilder();</span>
+
+<span class="fc" id="L116">    queryString.append(queryItem.getField()).append(&quot; &quot;)</span>
+<span class="fc" id="L117">            .append(loadQueryItemComparator(queryItem.getComparator()))</span>
+<span class="fc" id="L118">            .append(&quot; &quot;).append(&quot;:&quot;).append(queryItem.getField());</span>
+
+<span class="fc" id="L120">    Object value = queryItem.getValue();</span>
+<span class="fc" id="L121">    result.put(queryItem.getField(), value);</span>
+
+<span class="fc" id="L123">    result.put(&quot;queryItemString&quot;, queryString.toString());</span>
+<span class="fc" id="L124">    return result;</span>
+  }
+
+  /**
+   * Transform a query to a DynamoDB query.
+   *
+   * @param query The query to transform.
+   * @return Map The HSQL query string transformed.
+   */
+  private Map&lt;String, Object&gt; transformQueryToString(final Query query) {
+<span class="fc" id="L134">    Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L135">    StringBuilder queryString = new StringBuilder();</span>
+
+<span class="fc" id="L137">    List&lt;QueryItem&gt; items = query.getQuery();</span>
+<span class="fc" id="L138">    int count = 0;</span>
+
+<span class="fc bfc" id="L140" title="All 2 branches covered.">    for (QueryItem item : items) {</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">      if (items.size() &gt; 1) {</span>
+<span class="fc" id="L142">        queryString.append(&quot;(&quot;);</span>
+      }
+      /* Build the query item */
+<span class="fc" id="L145">      Map&lt;String, Object&gt; queryItem = transformQueryItemToString(item);</span>
+<span class="fc" id="L146">      queryString.append(queryItem.get(&quot;queryItemString&quot;));</span>
+<span class="fc" id="L147">      queryItem.remove(&quot;queryItemString&quot;);</span>
+<span class="fc" id="L148">      result.putAll(queryItem);</span>
+      
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">      if (items.size() &gt; 1) {</span>
+<span class="fc" id="L151">        queryString.append(&quot;)&quot;);</span>
+      }
+<span class="fc bfc" id="L153" title="All 2 branches covered.">      if (count &lt; items.size() - 1) {</span>
+<span class="fc" id="L154">        queryString.append(&quot; &quot;).append(query.getQueryType()).append(&quot; &quot;);</span>
+      }
+<span class="fc" id="L156">      count++;</span>
+<span class="fc" id="L157">    }</span>
+
+<span class="fc" id="L159">    result.put(&quot;queryString&quot;, queryString.toString());</span>
+<span class="fc" id="L160">    return result;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DynamoDBQueryExpression createQuery(final Query query,
+          final QueryFactoryRequest&lt;Class, Object&gt; request) {
+<span class="nc" id="L169">    Map&lt;String, Object&gt; queryItems = transformQueryToString(query);</span>
+<span class="nc" id="L170">    String queryString = queryItems.get(&quot;queryString&quot;).toString();</span>
+
+<span class="nc" id="L172">    queryItems.remove(&quot;queryString&quot;);</span>
+
+<span class="nc" id="L174">    Map&lt;String, AttributeValue&gt; eav = new HashMap&lt;String, AttributeValue&gt;();</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">    for (String key : queryItems.keySet()) {</span>
+<span class="nc" id="L177">      eav.put(&quot;:&quot; + key, attributeValueHandler.buildValue(queryItems.get(key)));</span>
+<span class="nc" id="L178">    }</span>
+
+<span class="nc" id="L180">    DynamoDBQueryExpression&lt;T&gt; queryExpression = new DynamoDBQueryExpression&lt;T&gt;()</span>
+<span class="nc" id="L181">            .withKeyConditionExpression(queryString)</span>
+<span class="nc" id="L182">            .withExpressionAttributeValues(eav);</span>
+
+<span class="nc" id="L184">    return queryExpression;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

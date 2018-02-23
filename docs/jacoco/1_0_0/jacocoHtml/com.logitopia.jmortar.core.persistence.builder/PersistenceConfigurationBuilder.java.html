@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersistenceConfigurationBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.builder</a> &gt; <span class="el_source">PersistenceConfigurationBuilder.java</span></div><h1>PersistenceConfigurationBuilder.java</h1><pre class="source lang-java linenums">package com.logitopia.jmortar.core.persistence.builder;
+
+import com.logitopia.jmortar.core.object.annotation.AnnotationSearcher;
+import com.logitopia.jmortar.core.object.exception.InvalidAnnotationException;
+import com.logitopia.jmortar.core.persistence.annotation.Ignore;
+import com.logitopia.jmortar.core.persistence.annotation.Key;
+import com.logitopia.jmortar.core.persistence.annotation.Persistent;
+import com.logitopia.jmortar.core.persistence.annotation.PersistentChild;
+import com.logitopia.jmortar.core.persistence.builder.exception.MalformedPersistentModelException;
+import com.logitopia.jmortar.core.persistence.builder.model.DomainPersistenceBuilderConfig;
+import com.logitopia.jmortar.core.persistence.dao.DataAccessObject;
+import com.logitopia.jmortar.core.persistence.dao.component.ReadableDataAccessComponent;
+import com.logitopia.jmortar.core.persistence.dao.component.WritableDataAccessComponent;
+import com.logitopia.jmortar.core.persistence.dao.factory.QueryFactory;
+import com.logitopia.jmortar.core.persistence.dao.impl.DataAccessObjectImpl;
+import com.logitopia.jmortar.core.persistence.dao.model.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
+import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * A configuration builder that can setup persistence requirements.
+ */
+public class PersistenceConfigurationBuilder implements BeanFactoryPostProcessor {
+
+    /**
+     * The logger for this class.
+     */
+<span class="fc" id="L37">    public static final Logger LOG</span>
+<span class="fc" id="L38">            = LoggerFactory.getLogger(PersistenceConfigurationBuilder.class);</span>
+
+    /**
+     * The executor service that this builder will use to source threads.
+     */
+    private ExecutorService primaryExecutor;
+
+    /**
+     * The annotation searcher that the builder will use to find annotated models.
+     */
+    private AnnotationSearcher annotationSearcher;
+
+    /**
+     * Maps the persistence configuration to the domain-specific configuration.
+     */
+    private Map&lt;Class, DomainPersistenceBuilderConfig&gt; domainConfig;
+
+    /**
+     * Default Constructor. Create a configuration builder with a setup annotation searcher.
+     *
+     * @param newAnnotationSearcher The annotation searcher to use.
+     * @param newDomainConfig       Maps the domain persistent annotation to the domain configuration.
+     */
+    public PersistenceConfigurationBuilder(final AnnotationSearcher newAnnotationSearcher,
+            final Map&lt;Class, DomainPersistenceBuilderConfig&gt; newDomainConfig,
+<span class="fc" id="L63">            final int newThreadPoolSize) {</span>
+<span class="fc" id="L64">        annotationSearcher = newAnnotationSearcher;</span>
+
+        // Create a thread pool
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (newThreadPoolSize == -1) {</span>
+<span class="nc" id="L68">            primaryExecutor = Executors.newFixedThreadPool(newThreadPoolSize);</span>
+        } else {
+<span class="fc" id="L70">            primaryExecutor = Executors.newCachedThreadPool();</span>
+        }
+
+        // Set domain-specific resources
+<span class="fc" id="L74">        domainConfig = newDomainConfig;</span>
+<span class="fc" id="L75">    }</span>
+
+    /**
+     * Get the domain configuration for the given model class.
+     *
+     * @param modelClass The model to get the domain configuration for.
+     * @return The domain persistence builder configuration.
+     */
+    private DomainPersistenceBuilderConfig getDomainConfig(Class modelClass) throws MalformedPersistentModelException {
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        for (Annotation annotation : modelClass.getAnnotations()) {</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">            for (Annotation type : annotation.annotationType().getAnnotations()) {</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">                if (type.annotationType() == Persistent.class) {</span>
+<span class="fc" id="L87">                    return domainConfig.get(annotation.annotationType());</span>
+                }
+            }
+        }
+
+<span class="fc" id="L92">        throw new MalformedPersistentModelException(&quot;The model [&quot; + modelClass.getSimpleName() + &quot;] did not have a persistent annotation.&quot;);</span>
+    }
+
+    /**
+     * Find annotated models based on the persistent annotations that we have calibrated with.
+     *
+     * @return A list of annotated models.
+     */
+    private List&lt;Class&gt; findAnnotatedModels() {
+<span class="fc" id="L101">        List&lt;Class&gt; models = new ArrayList&lt;&gt;();</span>
+
+        try {
+<span class="fc" id="L104">            List&lt;Class&gt; filters = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L105">            filters.add(Ignore.class);</span>
+<span class="fc" id="L106">            models.addAll(annotationSearcher.search(new ArrayList&lt;&gt;(domainConfig.keySet()), filters));</span>
+<span class="nc" id="L107">        } catch (InvalidAnnotationException e) {</span>
+<span class="nc" id="L108">            LOG.error(&quot;Issue searching for one of the annotations&quot;, e);</span>
+<span class="nc" id="L109">        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L110">            LOG.error(&quot;Unable to search completely for the annotation&quot;, e);</span>
+<span class="pc" id="L111">        }</span>
+
+<span class="fc" id="L113">        return models;</span>
+    }
+
+    /**
+     * Find a list of the key fields on an annotated model.
+     *
+     * @param modelClass The model to search for annotations.
+     * @return A list of field names annotated with &lt;tt&gt;Key&lt;/tt&gt;.
+     */
+    private List&lt;String&gt; findKeyFields(Class modelClass) {
+<span class="fc" id="L123">        List&lt;String&gt; keyFields = new ArrayList&lt;&gt;();</span>
+
+        try {
+<span class="fc" id="L126">            keyFields.addAll(annotationSearcher.searchClassForAnnotatedFieldNames(Key.class, modelClass));</span>
+<span class="nc" id="L127">        } catch (InvalidAnnotationException e) {</span>
+<span class="nc" id="L128">            LOG.error(&quot;Issue searching for one of the annotations&quot;, e);</span>
+<span class="fc" id="L129">        }</span>
+<span class="fc" id="L130">        return keyFields;</span>
+    }
+
+    /**
+     * Sort the annotated models so that the parent-level models are first and the persistent models with children are
+     * second. This wouldn't normally be a private method but this allows us to test the sorting with the persistent
+     * comparator attached.
+     *
+     * @param models The list of models to be sorted.
+     */
+    private void sortAnnotatedModels(List&lt;Class&gt; models) {
+<span class="fc" id="L141">        Collections.sort(models, new PersistentComparator());</span>
+<span class="fc" id="L142">    }</span>
+
+    /**
+     * Generate a domain-specific readable data access component.
+     *
+     * @param config     The configuration that contains building resources.
+     * @param modelClass The class of the model we are building resources for.
+     * @return The readable data access components.
+     * @throws MalformedPersistentModelException
+     */
+    private ReadableDataAccessComponent generateReadableDAC(DomainPersistenceBuilderConfig config, Class modelClass)
+            throws MalformedPersistentModelException {
+        ReadableDataAccessComponent result;
+
+<span class="fc" id="L156">        LOG.info(&quot;Building readable DAC for [&quot; + modelClass.getName() + &quot;]&quot;);</span>
+
+        // Get the builder that will construct the DAC.
+<span class="fc" id="L159">        DACBuilder builder = config.getDacBuilder();</span>
+
+        // Get the components we need to build the readable DAC.
+<span class="fc" id="L162">        QueryFactory queryFactory = config.getQueryFactory();</span>
+<span class="fc" id="L163">        Resource resource = config.getResourceFactory().build(modelClass);</span>
+<span class="fc" id="L164">        List&lt;String&gt; keyFields = findKeyFields(modelClass);</span>
+
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">        if (config.getQueryItemBuilders() != null) {</span>
+<span class="nc" id="L167">            Map queryItemBuilders = config.getQueryItemBuilders();</span>
+<span class="nc" id="L168">            result = builder.buildReadableDAC(resource, keyFields, queryFactory, queryItemBuilders);</span>
+<span class="nc" id="L169">        } else {</span>
+<span class="fc" id="L170">            result = builder.buildReadableDAC(resource, keyFields, queryFactory);</span>
+        }
+
+<span class="fc" id="L173">        return result;</span>
+    }
+
+    /**
+     * Generate a domain-specific writable data access component.
+     *
+     * @param config     The configuration that contains building resources.
+     * @param modelClass The class of the model we are building resources for.
+     * @return The generated domain-specific writable data access component.
+     * @throws MalformedPersistentModelException
+     */
+    private WritableDataAccessComponent generateWritableDAC(DomainPersistenceBuilderConfig config, Class modelClass)
+            throws MalformedPersistentModelException {
+        WritableDataAccessComponent result;
+
+<span class="fc" id="L188">        LOG.info(&quot;Building writable DAC for [&quot; + modelClass.getName() + &quot;]&quot;);</span>
+
+        // Get the builder that will construct the DAC.
+<span class="fc" id="L191">        DACBuilder builder = config.getDacBuilder();</span>
+
+        // Get the components we need to build the readable DAC.
+<span class="fc" id="L194">        Resource resource = config.getResourceFactory().build(modelClass);</span>
+
+        // Build the DAC
+<span class="fc" id="L197">        result = builder.buildWritableDAC(resource);</span>
+
+<span class="fc" id="L199">        return result;</span>
+    }
+
+    /**
+     * Generate child DAO mapping.
+     *
+     * @param modelClass The class of the model were building.
+     * @return The built map.
+     * @throws InvalidAnnotationException
+     */
+    private Map&lt;String, DataAccessObject&gt; generateChildDAOMapping(final Class modelClass,
+            final Map&lt;Class, DataAccessObject&gt; daos)
+            throws InvalidAnnotationException {
+<span class="fc" id="L212">        List&lt;Field&gt; childFields = annotationSearcher.searchClassForAnnotatedFields(PersistentChild.class, modelClass);</span>
+<span class="fc" id="L213">        Map&lt;String, DataAccessObject&gt; result = null;</span>
+
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">        if (childFields.size() &gt; 0) {</span>
+<span class="nc" id="L216">            result = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">            for (Field child : childFields) {</span>
+<span class="nc" id="L218">                Class type = child.getType();</span>
+<span class="nc" id="L219">                DataAccessObject dao = daos.get(type);</span>
+
+<span class="nc" id="L221">                result.put(child.getName(), dao);</span>
+<span class="nc" id="L222">            }</span>
+        }
+
+<span class="fc" id="L225">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void postProcessBeanFactory(final ConfigurableListableBeanFactory beanFactory) throws BeansException {
+        /* This is the primary method that will be called, therefore this will co-ordinate scanning
+         * and building resources that will be registered to the relevant context.
+         * */
+<span class="fc" id="L236">        List&lt;Class&gt; annotatedModels = findAnnotatedModels();</span>
+<span class="fc" id="L237">        sortAnnotatedModels(annotatedModels);</span>
+
+<span class="fc" id="L239">        Map&lt;Class, DataAccessObject&gt; builtObjects = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L241" title="All 2 branches covered.">        for (Class modelClass : annotatedModels) {</span>
+<span class="fc" id="L242">            DomainPersistenceBuilderConfig config = null;</span>
+            try {
+<span class="fc" id="L244">                config = getDomainConfig(modelClass);</span>
+<span class="nc" id="L245">            } catch (MalformedPersistentModelException e) {</span>
+<span class="nc" id="L246">                LOG.error(&quot;FATAL: Unable to retrieve the domain persistence config&quot;, e);</span>
+<span class="nc" id="L247">                throw new RuntimeException(&quot;A fatal error occurred whilst trying to get the domain configuration for &quot;</span>
+<span class="nc" id="L248">                        + modelClass.getSimpleName());</span>
+<span class="fc" id="L249">            }</span>
+
+            ReadableDataAccessComponent readable;
+            try {
+<span class="fc" id="L253">                readable = generateReadableDAC(config, modelClass);</span>
+<span class="nc" id="L254">            } catch (MalformedPersistentModelException e) {</span>
+<span class="nc" id="L255">                LOG.error(&quot;FATAL: Unable to generate readable DAC&quot;, e);</span>
+<span class="nc" id="L256">                throw new RuntimeException(&quot;A fatal error occurred whilst generating persistent framework.&quot;);</span>
+<span class="fc" id="L257">            }</span>
+
+            WritableDataAccessComponent writable;
+            try {
+<span class="fc" id="L261">                writable = generateWritableDAC(config, modelClass);</span>
+<span class="nc" id="L262">            } catch (MalformedPersistentModelException e) {</span>
+<span class="nc" id="L263">                LOG.error(&quot;FATAL: Unable to generate writable DAC&quot;, e);</span>
+<span class="nc" id="L264">                throw new RuntimeException(&quot;A fatal error occurred whilst generating persistent framework.&quot;);</span>
+<span class="fc" id="L265">            }</span>
+
+            // Create the child DAO mapping (if necessary)
+            Map childDAOMapping;
+            try {
+<span class="fc" id="L270">                childDAOMapping = generateChildDAOMapping(modelClass, builtObjects);</span>
+<span class="nc" id="L271">            } catch (InvalidAnnotationException e) {</span>
+<span class="nc" id="L272">                LOG.error(&quot;FATAL: Error processing child entities&quot;, e);</span>
+<span class="nc" id="L273">                throw new RuntimeException(&quot;A fatal error occurred whilst generating child entity mapping.&quot;);</span>
+<span class="fc" id="L274">            }</span>
+
+            // Generate the Data Access Object
+            DataAccessObject dao;
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">            if (writable != null) {</span>
+<span class="fc" id="L279">                dao = new DataAccessObjectImpl(childDAOMapping,</span>
+                        readable,
+                        writable,
+                        modelClass);
+<span class="fc" id="L283">                builtObjects.put(modelClass, dao);</span>
+
+            } else {
+<span class="nc" id="L286">                dao = new DataAccessObjectImpl(childDAOMapping,</span>
+                        readable,
+                        modelClass);
+<span class="nc" id="L289">                builtObjects.put(modelClass, dao);</span>
+            }
+<span class="fc" id="L291">            String beanName = Character.toLowerCase(modelClass.getSimpleName().charAt(0)) + modelClass.getSimpleName().substring(1);</span>
+<span class="fc" id="L292">            beanFactory.registerSingleton(beanName, dao);</span>
+<span class="fc" id="L293">        }</span>
+<span class="fc" id="L294">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

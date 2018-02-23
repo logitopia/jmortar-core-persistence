@@ -1,6 +1,7 @@
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'maven'
 apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
 
 group = 'com.logitopia'
 version = '1.0.0'
@@ -11,6 +12,18 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 tasks.withType(JavaCompile) {
   options.encoding = 'UTF-8'
+}
+
+bintray {
+  user = project.property('bintrayUser')
+  key = project.property('bintrayKey')
+  pkg {
+    repo = 'jmortar-release'
+    name = 'jmortar-core-persistence-hibernate'
+    userOrg = 'logitopia'
+    publications = ['publishToBintray']
+  }
+  publish = true
 }
 
 repositories {
@@ -27,8 +40,11 @@ repositories {
 
 publishing {
   publications {
-    mavenJava(MavenPublication) {
+    publishToBintray(MavenPublication) {
       from components.java
+      groupId 'com.logitopia'
+      artifactId 'jmortar-core-persistence-hibernate'
+      version version
     }
   }
   repositories {

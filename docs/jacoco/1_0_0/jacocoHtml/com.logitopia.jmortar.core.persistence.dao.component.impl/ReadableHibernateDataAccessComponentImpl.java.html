@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ReadableHibernateDataAccessComponentImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.component.impl</a> &gt; <span class="el_source">ReadableHibernateDataAccessComponentImpl.java</span></div><h1>ReadableHibernateDataAccessComponentImpl.java</h1><pre class="source lang-java linenums">/* 
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.component.impl;
+
+import com.logitopia.jmortar.core.persistence.dao.component.ReadableDataAccessComponent;
+import com.logitopia.jmortar.core.persistence.dao.component.handler.DACQueryItemBuilder;
+import com.logitopia.jmortar.core.persistence.dao.factory.QueryFactory;
+import com.logitopia.jmortar.core.persistence.dao.model.HibernateResource;
+import com.logitopia.jmortar.core.persistence.dao.model.Query;
+import com.logitopia.jmortar.core.persistence.dao.model.impl.QueryFactoryRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+
+/**
+ * The &lt;tt&gt;ReadableHibernateDataAccessComponentImpl&lt;/tt&gt; class is an implementation of
+ * &lt;tt&gt;ReadableDataAccessComponent&lt;/tt&gt; that uses hibernate to retrieve persistent data.
+ *
+ * @param &lt;T&gt; The type of model that this component deals with.
+ * @author Stephen Cheesley &amp;lt;stephen.cheesley@gmail.com&amp;gt;
+ */
+public final class ReadableHibernateDataAccessComponentImpl&lt;T&gt;
+        extends AbstractReadableDataAccessComponent&lt;T, org.hibernate.Query, Class, Session, HibernateResource&gt;
+        implements ReadableDataAccessComponent&lt;T&gt; {
+
+    /**
+     * The logger for this class.
+     */
+<span class="nc" id="L36">    public static final Logger ABSTRACT_LOG</span>
+<span class="nc" id="L37">            = Logger.getLogger(ReadableHibernateDataAccessComponentImpl.class);</span>
+
+    /**
+     * The hibernate session factory.
+     */
+    private final SessionFactory sessionFactory;
+
+    /**
+     * The fields in the model that comprise its unique key.
+     */
+    private List&lt;String&gt; keyFields;
+
+    /**
+     * Custom Query Item Builders. Create a Readable Hibernate Data Access Component that has custom
+     * query item builders defined.
+     *
+     * @param newKeyFields         The fields that represent the entities unique key.
+     * @param newQueryItemBuilders The custom query item builders.
+     * @param newQueryFactory      The factory that builds the domain factory.
+     * @param newResource          The payload that contains resources that the hibernate DAC needs to persist.
+     */
+    public ReadableHibernateDataAccessComponentImpl(final List&lt;String&gt; newKeyFields,
+            final Map&lt;String, DACQueryItemBuilder&gt; newQueryItemBuilders,
+            final QueryFactory&lt;org.hibernate.Query, Class, Session&gt; newQueryFactory,
+            final HibernateResource newResource) {
+<span class="nc" id="L62">        super(newQueryItemBuilders, newQueryFactory, newResource);</span>
+<span class="nc" id="L63">        sessionFactory = newResource.getSessionFactory();</span>
+<span class="nc" id="L64">        keyFields = newKeyFields;</span>
+<span class="nc" id="L65">    }</span>
+
+    /**
+     * Default Constructor. Create a Readable Hibernate Data Access Component that uses default query
+     * builders.
+     *
+     * @param newKeyFields      The fields that represent the entities unique key.
+     * @param newQueryFactory   The factory that builds the domain query.
+     * @param newResource       The payload that contains resources that the hibernate DAC needs to persist.
+     */
+    public ReadableHibernateDataAccessComponentImpl(final List&lt;String&gt; newKeyFields,
+            final QueryFactory&lt;org.hibernate.Query, Class, Session&gt; newQueryFactory,
+            final HibernateResource newResource) {
+<span class="nc" id="L78">        super(newQueryFactory, newResource);</span>
+<span class="nc" id="L79">        sessionFactory = newResource.getSessionFactory();</span>
+<span class="nc" id="L80">        keyFields = newKeyFields;</span>
+<span class="nc" id="L81">    }</span>
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;String&gt; getKeyFields() {
+    /* Return a defensive copy (just in case) */
+<span class="nc" id="L89">        return new ArrayList&lt;&gt;(keyFields);</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; getAll(Class newClazz) {
+<span class="nc" id="L97">        Session session = sessionFactory.openSession();</span>
+
+<span class="nc" id="L99">        List&lt;T&gt; personList = getQueryFactory().createGetAllQuery(</span>
+<span class="nc" id="L100">                new QueryFactoryRequest&lt;Class, Session&gt;(newClazz, session)).list();</span>
+<span class="nc" id="L101">        session.close();</span>
+<span class="nc" id="L102">        return personList;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; getAll(Class newClazz, int pageNumber, int pageSize) {
+<span class="nc" id="L110">        Session session = sessionFactory.openSession();</span>
+
+<span class="nc" id="L112">        org.hibernate.Query query = getQueryFactory().createGetAllQuery(</span>
+                new QueryFactoryRequest&lt;Class, Session&gt;(newClazz, session));
+<span class="nc" id="L114">        query.setFirstResult(pageNumber * pageSize);</span>
+<span class="nc" id="L115">        query.setMaxResults(pageSize);</span>
+
+<span class="nc" id="L117">        List&lt;T&gt; personList = query.list();</span>
+<span class="nc" id="L118">        session.close();</span>
+<span class="nc" id="L119">        return personList;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public T getEntityByID(Class newClazz, long id) {
+<span class="nc" id="L127">        Session session = sessionFactory.openSession();</span>
+<span class="nc" id="L128">        T result = (T) session.get(newClazz, id);</span>
+<span class="nc" id="L129">        session.close();</span>
+<span class="nc" id="L130">        return result;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; find(Class newClazz, Query findFilter) {
+<span class="nc" id="L138">        Session session = sessionFactory.openSession();</span>
+<span class="nc" id="L139">        List&lt;T&gt; personList = getQueryFactory().createQuery(findFilter,</span>
+<span class="nc" id="L140">                new QueryFactoryRequest&lt;Class, Session&gt;(newClazz, session)).list();</span>
+<span class="nc" id="L141">        session.close();</span>
+<span class="nc" id="L142">        return personList;</span>
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List&lt;T&gt; find(Class newClazz, Query findFilter, int pageNumber, int pageSize) {
+<span class="nc" id="L150">        Session session = sessionFactory.openSession();</span>
+
+<span class="nc" id="L152">        org.hibernate.Query query = getQueryFactory().createQuery(findFilter,</span>
+                new QueryFactoryRequest&lt;Class, Session&gt;(newClazz, session));
+<span class="nc" id="L154">        query.setFirstResult(pageNumber * pageSize);</span>
+<span class="nc" id="L155">        query.setMaxResults(pageSize);</span>
+
+<span class="nc" id="L157">        List&lt;T&gt; resultList = query.list();</span>
+<span class="nc" id="L158">        session.close();</span>
+<span class="nc" id="L159">        return resultList;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DynamoDBResourceFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.builder</a> &gt; <span class="el_source">DynamoDBResourceFactory.java</span></div><h1>DynamoDBResourceFactory.java</h1><pre class="source lang-java linenums">package com.logitopia.jmortar.core.persistence.dao.builder;
+
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.regions.Regions;
+import com.logitopia.jmortar.core.persistence.builder.ResourceFactory;
+import com.logitopia.jmortar.core.persistence.builder.exception.MalformedPersistentModelException;
+import com.logitopia.jmortar.core.persistence.dao.annotation.DynamoDBPersistent;
+import com.logitopia.jmortar.core.persistence.dao.model.DynamoDBResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+
+import java.lang.annotation.Annotation;
+
+/**
+ * A dynamoDB-specific resource factory.
+ */
+@Component(&quot;dynamoDBResourceFactory&quot;)
+<span class="fc" id="L22">public class DynamoDBResourceFactory implements ResourceFactory&lt;DynamoDBResource&gt;, ApplicationContextAware {</span>
+
+    /**
+     * The logger for this class.
+     */
+<span class="fc" id="L27">    public static final Logger LOG</span>
+<span class="fc" id="L28">            = LoggerFactory.getLogger(DynamoDBResourceFactory.class);</span>
+
+    /**
+     * The Spring Application Context
+     */
+    private ApplicationContext applicationContext;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setApplicationContext(final ApplicationContext newApplicationContext) throws BeansException {
+<span class="fc" id="L40">        applicationContext = newApplicationContext;</span>
+<span class="fc" id="L41">    }</span>
+
+    /**
+     * Get the credentials provider bean name.
+     *
+     * @param modelClass The class of the model we want to get the credentials provider for.
+     * @return The bean name of the credentials provider.
+     * @throws MalformedPersistentModelException
+     */
+    private String getCredentialsProviderBeanName(final Class modelClass) throws MalformedPersistentModelException {
+<span class="fc" id="L51">        DynamoDBPersistent persistent = getDynamoDBPersistentAnnotation(modelClass);</span>
+<span class="fc" id="L52">        return persistent.credentialsProvider();</span>
+    }
+
+    /**
+     * Get the region container bean name.
+     *
+     * @param modelClass The class of the model we want to get the region container for.
+     * @return The bean name of the region container.
+     * @throws MalformedPersistentModelException
+     */
+    private String getRegionsBeanName(final Class modelClass) throws MalformedPersistentModelException {
+<span class="fc" id="L63">        DynamoDBPersistent persistent = getDynamoDBPersistentAnnotation(modelClass);</span>
+<span class="fc" id="L64">        return persistent.regions();</span>
+    }
+
+    /**
+     * Get the no of threads to use in persistence.
+     *
+     * @param modelClass The class of the model we want to get the no of threads for.
+     * @return The no of persistent threads.
+     * @throws MalformedPersistentModelException
+     */
+    private int getNoOfThreads(final Class modelClass) throws MalformedPersistentModelException {
+<span class="fc" id="L75">        DynamoDBPersistent persistent = getDynamoDBPersistentAnnotation(modelClass);</span>
+
+<span class="fc" id="L77">        return persistent.noOfThreads();</span>
+    }
+
+    /**
+     * Get the models persistent annotation
+     *
+     * @param modelClass The class of the model we want to get the persistent annotation for.
+     * @return The persistent annotation.
+     * @throws MalformedPersistentModelException
+     */
+    private DynamoDBPersistent getDynamoDBPersistentAnnotation(final Class modelClass) throws MalformedPersistentModelException {
+<span class="fc" id="L88">        Annotation[] annotations = modelClass.getAnnotationsByType(DynamoDBPersistent.class);</span>
+
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">        if (annotations.length == 1) {</span>
+<span class="fc" id="L91">            return (DynamoDBPersistent) annotations[0];</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        } else if (annotations.length &gt; 1) {</span>
+<span class="nc" id="L93">            throw new MalformedPersistentModelException(</span>
+                    &quot;There are too many instances of the DynamoDBPersistent annotation on the model.&quot;);
+        }
+
+<span class="nc" id="L97">        throw new MalformedPersistentModelException(</span>
+                &quot;There model is not annotated as persistent.&quot;);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DynamoDBResource build(final Class modelClass) throws MalformedPersistentModelException {
+<span class="fc" id="L106">        LOG.info(&quot;Building the DynamoDBResource for &quot; + modelClass.getSimpleName());</span>
+        // 1. Get the resources bean name
+<span class="fc" id="L108">        String credentialsProviderBeanName = getCredentialsProviderBeanName(modelClass);</span>
+<span class="fc" id="L109">        String regionsBeanName = getRegionsBeanName(modelClass);</span>
+
+        // 2. Retrieve the resources from the Spring Configuration.
+<span class="fc" id="L112">        AWSCredentialsProvider awsCredentialsProvider = (AWSCredentialsProvider) applicationContext.getBean(credentialsProviderBeanName);</span>
+<span class="fc" id="L113">        Regions awsRegions = (Regions) applicationContext.getBean(regionsBeanName);</span>
+<span class="fc" id="L114">        int noOfThreads = getNoOfThreads(modelClass);</span>
+<span class="fc" id="L115">        LOG.info(&quot;Finished build the DynamoDBResource for &quot; + modelClass.getSimpleName());</span>
+
+<span class="fc" id="L117">        return new DynamoDBResource(awsCredentialsProvider, awsRegions, noOfThreads);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

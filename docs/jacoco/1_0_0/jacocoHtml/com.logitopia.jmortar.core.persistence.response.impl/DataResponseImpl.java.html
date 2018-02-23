@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataResponseImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.response.impl</a> &gt; <span class="el_source">DataResponseImpl.java</span></div><h1>DataResponseImpl.java</h1><pre class="source lang-java linenums">/* 
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.response.impl;
+
+import com.logitopia.jmortar.core.persistence.response.DataResponse;
+import java.util.HashMap;
+import java.util.Map;
+import org.apache.log4j.Logger;
+
+/**
+ * The &lt;tt&gt;DataResponseImpl&lt;/tt&gt; class is an implementation of &lt;tt&gt;DataResponse&lt;/tt&gt; that creates an immutable
+ * implementation.
+ *
+ * @author Stephen Cheesley &amp;lt;stephen.cheesley@gmail.com&amp;gt;
+ */
+public final class DataResponseImpl implements DataResponse {
+
+  /**
+   * The logger for this class.
+   */
+<span class="fc" id="L23">  public static final Logger LOG</span>
+<span class="fc" id="L24">          = Logger.getLogger(DataResponseImpl.class);</span>
+
+  /**
+   * The status of the response.
+   */
+  private byte status;
+
+  /**
+   * The attributes of the response.
+   */
+  private Map&lt;String, Object&gt; attributes;
+
+  /**
+   * Default Constructor. Create a response with a status.
+   *
+   * @param newStatus The status of the response.
+   */
+  public DataResponseImpl(final byte newStatus) {
+<span class="fc" id="L42">    this(newStatus, null);</span>
+<span class="fc" id="L43">  }</span>
+
+  /**
+   * Extended Constructor. Create a response with a status and attributes.
+   *
+   * @param newStatus The status of the response.
+   * @param newAttributes Attributes of the response.
+   */
+<span class="fc" id="L51">  public DataResponseImpl(final byte newStatus, final Map&lt;String, Object&gt; newAttributes) {</span>
+<span class="fc" id="L52">    status = newStatus;</span>
+<span class="fc" id="L53">    attributes = new HashMap&lt;&gt;();</span>
+
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">    if (newAttributes != null) {</span>
+<span class="nc" id="L56">      attributes = newAttributes;</span>
+    }
+<span class="fc" id="L58">  }</span>
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public byte getStatus() {
+<span class="fc" id="L65">    return status;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Map&lt;String, Object&gt; getAttributes() {
+<span class="nc" id="L73">    return attributes;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Object getAttribute(final String attributeKey) {
+<span class="fc" id="L81">    Object result = null;</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    if (attributes != null) {</span>
+<span class="fc" id="L83">      result = attributes.get(attributeKey);</span>
+    }
+<span class="fc" id="L85">    return result;</span>
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean addAttribute(final String key, final Object value) {
+<span class="fc" id="L93">    boolean result = false;</span>
+
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">    if (attributes != null) {</span>
+<span class="fc" id="L96">      Object existing = attributes.get(key);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">      if (existing == null) {</span>
+<span class="fc" id="L98">        attributes.put(key, value);</span>
+<span class="fc" id="L99">        result = true;</span>
+      }
+    }
+
+<span class="fc" id="L103">    return result;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

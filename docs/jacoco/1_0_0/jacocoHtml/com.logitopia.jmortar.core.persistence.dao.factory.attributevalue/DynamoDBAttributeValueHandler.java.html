@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DynamoDBAttributeValueHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">jmortar-core-persistence</a> &gt; <a href="index.source.html" class="el_package">com.logitopia.jmortar.core.persistence.dao.factory.attributevalue</a> &gt; <span class="el_source">DynamoDBAttributeValueHandler.java</span></div><h1>DynamoDBAttributeValueHandler.java</h1><pre class="source lang-java linenums">/*
+ * Software is the property of Stephen Cheesley.
+ * All Rights Reserved.
+ */
+package com.logitopia.jmortar.core.persistence.dao.factory.attributevalue;
+
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+
+/**
+ * A handler that is responsible for building an &lt;tt&gt;AttributeValue&lt;/tt&gt; for DynamoDB access.
+ *
+ * @author Stephen Cheesley
+ */
+public abstract class DynamoDBAttributeValueHandler {
+
+  /**
+   * A successor to this handler.
+   */
+  private DynamoDBAttributeValueHandler successor;
+
+  /**
+   * Default Constructor. Create a handler with no successor.
+   */
+<span class="fc" id="L24">  public DynamoDBAttributeValueHandler() {</span>
+<span class="fc" id="L25">  }</span>
+
+  /**
+   * Precursor Handler. Create a handler with a successor.
+   *
+   * @param newSuccessor The handler to be called after this one.
+   */
+<span class="fc" id="L32">  public DynamoDBAttributeValueHandler(final DynamoDBAttributeValueHandler newSuccessor) {</span>
+<span class="fc" id="L33">    successor = newSuccessor;</span>
+<span class="fc" id="L34">  }</span>
+
+  /**
+   * Is the value applicable to this handler.
+   *
+   * @return A flag indicating whether or not the value is applicable to this handler.
+   */
+  protected abstract boolean isValueApplicable(Object value);
+
+  /**
+   * Build the &lt;tt&gt;AttributeValue&lt;/tt&gt; using the given value.
+   *
+   * @param value The value to build from.
+   * @return The &lt;tt&gt;AttributeValue&lt;/tt&gt; to be built.
+   */
+  protected abstract AttributeValue buildValueImpl(Object value);
+
+  /**
+   * Build the dynamo DB compatible value.
+   *
+   * @param value The value to build into &lt;tt&gt;AttributeValue&lt;/tt&gt;.
+   * @return The &lt;tt&gt;AttributeValue&lt;/tt&gt; that has been built. A null value will be returned if there
+   * is no applicable handler.
+   */
+  public AttributeValue buildValue(Object value) {
+<span class="fc bfc" id="L59" title="All 2 branches covered.">    if (isValueApplicable(value)) {</span>
+<span class="fc" id="L60">      return buildValueImpl(value);</span>
+    } else {
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">      if (successor != null) {</span>
+<span class="fc" id="L63">        return successor.buildValue(value);</span>
+      }
+    }
+<span class="nc" id="L66">    return null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
